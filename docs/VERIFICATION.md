@@ -82,3 +82,38 @@ Design system: semantic theme/spacing/type/motion/border/elevation tokens in src
 - Audit: **zero dependency vulnerabilities reported**.
 
 A separate Chrome test runner was also running on the connected Mac during an early verification attempt and intermittently removed Playwright trace files. The suite now uses a unique local output directory, a dedicated test port and opt-in trace recording. Both affected flows were rerun individually before the full green regression. Test harness modifications do not change learner-facing state.
+
+## PWA stale-brand upgrade fix
+
+The publicly hosted Softwired HTML and assets were already deployed, but an
+installed PWA could continue rendering Kipinä because the previous
+service-worker update flow left new workers waiting for the Settings-only
+update button. The edge served sw.js with a four-hour public max-age.
+
+Remediation:
+
+- Automatically activate new service workers with autoUpdate, skipWaiting and
+  clientsClaim; show a direct refresh button in the global fallback notice.
+- Check for updates whenever the browser tab regains focus, becomes visible,
+  and every two minutes while online.
+- Configure the Cloudflare Pages cache headers so /sw.js is no-store/no-cache
+  and the HTML shell and manifest are revalidated. Keep hashed assets cached.
+- Retain kipina.study.v2 as the internal storage key so no learner data is
+  cleared or migrated unnecessarily.
+
+Verified: an actual Playwright test installs a synthetic old Kipinä
+service worker, confirms it serves the old shell, swaps to the new Workbox
+worker, and confirms the new Softwired Command Center loads while
+preserving a saved completed lesson and appearance preference. Tests pass
+on desktop and mobile.
+
+Latest complete local release command:
+E2E_PORT=4208 PLAYWRIGHT_CHANNEL=chrome npm run qc:pretest
+Result: 83 unit/API tests passed; 56 browser tests passed; typecheck,
+lint, build, release artifact scanning and npm audit passed with no
+reported vulnerabilities.
+
+GitHub-to-Pages auto-deploy remains independently unverified: Cloudflare's
+deployment history to date only shows ad_hoc/manual releases despite source
+metadata indicating GitHub. Repository authorization for Cloudflare Workers
+and Pages GitHub App must be repaired and a Git-triggered release confirmed.

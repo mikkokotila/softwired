@@ -5,7 +5,9 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: "prompt",
+      // Install newer builds automatically instead of leaving an old waiting
+      // worker in control until the learner discovers a settings button.
+      registerType: "autoUpdate",
       includeAssets: ["icons/*.png", "favicon.svg", "licenses/*.txt"],
       manifest: {
         name: "SOFTWIRED — Terveystieto 8",
@@ -31,6 +33,7 @@ export default defineConfig({
       },
       workbox: {
         clientsClaim: true,
+        skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,png,svg,woff2}"],
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/api\//],

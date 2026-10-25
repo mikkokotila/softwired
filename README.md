@@ -108,7 +108,11 @@ Unit tests mock the remote SDK and make no paid provider calls. Live provider ve
 
 ## Cloudflare Pages public pilot
 
-The public production site is https://softwired.mikkokotila.com and is configured to deploy automatically from GitHub main through Cloudflare Pages Git integration. The public course runs offline and intentionally disables AI API requests until a separate age-appropriate, access-controlled tutor deployment has passed review. See [deployment instructions](docs/DEPLOYMENT.md) and [licensing notes](docs/LICENSING.md).
+The public production site is https://softwired.mikkokotila.com. Cloudflare
+Pages records GitHub main as the source, but the GitHub-triggered deploy
+connection still needs repository App authorization/verification. Until it is
+fixed, production uploads have been manual. Do not mistake a Git-connected
+project setting for an independently verified merge-to-deploy pipeline. The public course runs offline and intentionally disables AI API requests until a separate age-appropriate, access-controlled tutor deployment has passed review. See [deployment instructions](docs/DEPLOYMENT.md) and [licensing notes](docs/LICENSING.md).
 
 ## Pre-test distribution
 

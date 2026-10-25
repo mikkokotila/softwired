@@ -62,18 +62,44 @@ export default function App() {
       immediate: true,
       onOfflineReady: () => setOfflineReady(true),
       onRegisterError: () => setOfflineError(true),
-      onNeedRefresh: () => setUpdateAvailable(true),
+      onNeedRefresh: () => {
+        // Normally autoUpdate activates and reloads immediately; preserve
+        // a visible escape hatch if a browser delays that transition.
+        setUpdateAvailable(true);
+      },
       onRegisteredSW: (_url, registration) => {
         if (registration?.active && navigator.serviceWorker.controller)
           setOfflineReady(true);
       },
     });
+    // Check again whenever someone returns to an installed PWA, and every
+    // few minutes during long study sessions. Previously the update banner
+    // could stay hidden behind Settings while a waiting worker served Kipinä.
+    const checkForUpdates = () => {
+      if (!navigator.onLine || !("serviceWorker" in navigator)) return;
+      void navigator.serviceWorker
+        .getRegistration()
+        .then((registration) => registration?.update())
+        .catch(() => undefined);
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") checkForUpdates();
+    };
+    window.addEventListener("focus", checkForUpdates);
+    document.addEventListener("visibilitychange", onVisibility);
+    const updateTimer = window.setInterval(checkForUpdates, 2 * 60_000);
+    checkForUpdates();
     const install = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e as InstallPrompt);
     };
     window.addEventListener("beforeinstallprompt", install);
-    return () => window.removeEventListener("beforeinstallprompt", install);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", install);
+      window.removeEventListener("focus", checkForUpdates);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.clearInterval(updateTimer);
+    };
   }, []);
   useEffect(() => {
     if (!menu) return;
@@ -333,7 +359,12 @@ export default function App() {
             <Notice>
               <Download size={17} />
               Uusi versio on valmis.{" "}
-              <a href="#/settings">Ota päivitys käyttöön asetuksista</a>
+              <button
+                className="text-button"
+                onClick={() => void updateSW.current?.(true)}
+              >
+                Päivitä Softwired nyt
+              </button>
             </Notice>
           )}
           <AppErrorBoundary key={path}>{content}</AppErrorBoundary>

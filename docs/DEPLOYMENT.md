@@ -7,7 +7,12 @@ Cloudflare Pages project: softwired
 
 ## Continuous deployment
 
-The project uses the first-party Cloudflare Pages GitHub integration, not GitHub Actions with a separately stored Cloudflare token.
+Cloudflare Pages is configured with GitHub as its repository source, but automatic
+GitHub-triggered deployments have **not** started working: as checked in
+Cloudflare deployment history, only manually uploaded (ad_hoc) releases exist.
+This is a separate release blocker for unattended deployment; do not claim
+merge-to-deploy is operational until an actual push produces a Git-triggered
+Cloudflare deployment.
 
 - Production source: GitHub mikkokotila/softwired, branch main.
 - Build command: npm run build:pages
@@ -15,7 +20,9 @@ The project uses the first-party Cloudflare Pages GitHub integration, not GitHub
 - Root directory: /
 - Node runtime: 24
 - Cloudflare Pages Functions: functions/api/status.ts, functions/api/tutor.ts and functions/api/unlock.ts
-- Every push or merge to main triggers a new production build and deployment. Pull-request branches can receive Cloudflare preview URLs (if enabled).
+- Intended behavior: every push or merge to main builds and deploys production; PRs may get previews. **Currently unverified and not operating**.
+- Cloudflare's GitHub App must be authorized for the mikkokotila/softwired repository. On GitHub, go to Settings > Applications > Installed GitHub Apps > Cloudflare Workers and Pages > Configure > Repository access and include softwired. Check Pages > softwired > Settings > Builds > Git Repository. Re-push a safe commit to validate and confirm Cloudflare reports a Git-triggered deployment rather than ad_hoc.
+- If GitHub App linking cannot be repaired, use an explicit GitHub Actions Wrangler deployment backed by a scoped Cloudflare Pages Edit API token stored in GitHub Actions secrets. Never commit the token or publish OAuth session credentials.
 - The Verify app GitHub workflow separately runs curriculum, unit, accessibility and browser tests. Cloudflare Pages Git integration does not automatically wait for GitHub tests to pass; require green checks before merging.
 
 ## Public course and AI
@@ -41,3 +48,23 @@ The public site is configured with X-Robots-Tag: noindex during the pilot. The s
 Production Pages project: softwired (Git-connected main). Custom domain: softwired.mikkokotila.com.
 
 Initial Cloudflare Pages production deployment verified at softwired.mikkokotila.com (HTTP 200). Automatic Git-triggered deployment is being verified separately.
+
+## Installed PWA upgrade policy
+
+In the October 25 update, the previous PWA was using prompt-based service
+worker upgrades, with the only effective apply button hidden in Settings.
+That can leave an installed browser showing the old Kipinä UI even after
+Cloudflare serves the Softwired build.
+
+The upgrade fix uses autoUpdate, skipWaiting and clientsClaim; the app also
+checks for new service workers when a tab gains focus and periodically while
+open. Cloudflare sends no-store/no-cache headers for /sw.js and revalidation
+headers for the application shell and manifest. Hashed assets remain safely
+cacheable. The change preserves the existing kipina.study.v2 storage key for
+study-history compatibility; it does not clear browser storage.
+
+Regression coverage: e2e/service-worker-upgrade.spec.ts emulates a browser
+controlled by a legacy Kipinä service worker, upgrades it to Softwired, and
+verifies the old progress and theme remain intact. A fresh browser origin,
+for example softwired.pages.dev, can be used for a quick cross-check if an
+older installed PWA has not yet checked for its newer worker.
