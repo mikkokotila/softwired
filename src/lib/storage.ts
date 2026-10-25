@@ -40,7 +40,8 @@ const draftSchema = z.object({
   recall: z.string().max(4000),
   written: z.string().max(4000),
   choiceIndex: z.number().int().min(0).max(2),
-  answers: z.record(z.string(), z.number().int().min(0).max(2)),
+  // -1 means "En osaa vielä"; it is a recorded non-success, not a choice.
+  answers: z.record(z.string(), z.number().int().min(-1).max(2)),
   recallSubmitted: z.boolean().default(false),
   writtenSubmitted: z.boolean().default(false),
   rubricViewed: z.boolean().default(false),

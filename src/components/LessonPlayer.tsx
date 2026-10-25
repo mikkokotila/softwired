@@ -15,6 +15,7 @@ import { useStudy } from "../lib/store";
 import { addActivity, type LessonDraft } from "../lib/storage";
 import { emptyObjective, mastery, recordChoice } from "../lib/learning";
 import { finishFocusItem } from "../lib/focus";
+import { hasAttempt, isUnsureAnswer } from "../lib/answer-flow";
 import { navigate } from "../lib/hooks";
 import { AiAssistant } from "./AiAssistant";
 import { MultipleChoice, SelfRubric } from "./Assessment";
@@ -102,6 +103,12 @@ export function LessonPlayer({
   };
   const next = lessons[lessons.findIndex((l) => l.id === lesson.id) + 1];
   const stage = draft.stage;
+  // A restored/older backup can contain index 2 although each lesson has
+  // only two questions (indices 0 and 1). Always leave a working way forward.
+  const choiceIndex = Math.min(
+    Math.max(0, draft.choiceIndex),
+    lesson.questions.length - 1,
+  );
   return (
     <div className="lesson-player">
       <div className="lesson-topline">
@@ -224,15 +231,39 @@ export function LessonPlayer({
               onChange={(e) => update({ recall: e.target.value })}
             />
             {!draft.recallSubmitted ? (
-              <button
-                className="button"
-                disabled={draft.recall.trim().length < 10}
-                onClick={() => update({ recallSubmitted: true })}
-              >
-                Tallenna oma yritys
-              </button>
+              <>
+                <button
+                  className="button"
+                  disabled={!hasAttempt(draft.recall)}
+                  onClick={() =>
+                    update({
+                      recallSubmitted: true,
+                      helpUsed: draft.helpUsed || isUnsureAnswer(draft.recall),
+                    })
+                  }
+                >
+                  Tallenna oma yritys
+                </button>
+                <button
+                  className="button secondary"
+                  onClick={() =>
+                    update({ recallSubmitted: true, helpUsed: true })
+                  }
+                >
+                  En osaa vielä – näytä esimerkki
+                </button>
+              </>
             ) : (
               <>
+                {(isUnsureAnswer(draft.recall) ||
+                  !hasAttempt(draft.recall)) && (
+                  <Notice>
+                    Et vielä tiennyt vastausta – se on hyvä lähtökohta
+                    oppimiselle. Lue vertailuvastaus, palaa tarvittaessa
+                    opetukseen ja kokeile seuraavia tehtäviä. Tämä ei ole
+                    osoitus hallinnasta.
+                  </Notice>
+                )}
                 <SelfRubric task={lesson.recall} />
                 <Notice>
                   Tämä saman päivän muistelu harjoittaa osaamista. Hallinta
@@ -250,16 +281,16 @@ export function LessonPlayer({
         {stage === 3 && (
           <>
             <div className="question-counter">
-              TEHTÄVÄ {Math.min(draft.choiceIndex + 1, 2)} / 2
+              TEHTÄVÄ {choiceIndex + 1} / {lesson.questions.length}
             </div>
-            {lesson.questions[draft.choiceIndex] && (
+            {lesson.questions[choiceIndex] && (
               <MultipleChoice
-                key={lesson.questions[draft.choiceIndex].id}
-                question={lesson.questions[draft.choiceIndex]}
-                saved={draft.answers[lesson.questions[draft.choiceIndex].id]}
+                key={lesson.questions[choiceIndex].id}
+                question={lesson.questions[choiceIndex]}
+                saved={draft.answers[lesson.questions[choiceIndex].id]}
                 rescue={(objective?.mistakes ?? 0) >= 2}
                 onAnswer={(choice, confidence) => {
-                  const q = lesson.questions[draft.choiceIndex];
+                  const q = lesson.questions[choiceIndex];
                   setState((s) => {
                     const d = s.drafts[lesson.id] ?? blankDraft();
                     const o = s.objectives[lesson.id] ?? {
@@ -273,6 +304,7 @@ export function LessonPlayer({
                         [lesson.id]: {
                           ...d,
                           answers: { ...d.answers, [q.id]: choice },
+                          helpUsed: d.helpUsed || choice === -1,
                         },
                       },
                       objectives: {
@@ -280,7 +312,7 @@ export function LessonPlayer({
                         [lesson.id]: recordChoice(o, {
                           questionId: q.id,
                           correct: choice === q.correct,
-                          independent: !d.helpUsed,
+                          independent: !d.helpUsed && choice !== -1,
                           at: Date.now(),
                           confidence,
                         }),
@@ -289,12 +321,10 @@ export function LessonPlayer({
                   });
                 }}
                 onNext={() =>
-                  draft.choiceIndex === 0
-                    ? update({ choiceIndex: 1 })
-                    : nextStage()
+                  choiceIndex === 0 ? update({ choiceIndex: 1 }) : nextStage()
                 }
                 nextLabel={
-                  draft.choiceIndex === 0
+                  choiceIndex === 0
                     ? "Seuraava tehtävä"
                     : "Sovella uuteen tilanteeseen"
                 }
@@ -323,29 +353,64 @@ export function LessonPlayer({
             />
             <span className="char-count">{draft.written.length}/4000</span>
             {!draft.writtenSubmitted ? (
-              <button
-                className="button"
-                disabled={draft.written.trim().length < 20}
-                onClick={() => update({ writtenSubmitted: true })}
-              >
-                Lukitse oma vastaus
-              </button>
+              <>
+                <button
+                  className="button"
+                  disabled={!hasAttempt(draft.written)}
+                  onClick={() =>
+                    update({
+                      writtenSubmitted: true,
+                      ...(isUnsureAnswer(draft.written)
+                        ? { helpUsed: true, rubricViewed: true }
+                        : {}),
+                    })
+                  }
+                >
+                  Lukitse oma vastaus
+                </button>
+                <button
+                  className="button secondary"
+                  onClick={() =>
+                    update({
+                      writtenSubmitted: true,
+                      rubricViewed: true,
+                      helpUsed: true,
+                    })
+                  }
+                >
+                  En osaa vielä – näytä mallivastaus
+                </button>
+              </>
             ) : (
               <>
+                {(isUnsureAnswer(draft.written) ||
+                  !hasAttempt(draft.written)) && (
+                  <Notice>
+                    Et tarvitse valmista vastausta jatkaaksesi. Tutki mallia,
+                    vertaa käsitteitä ja palaa tähän aiheeseen kertauksessa.
+                    Tästä ei kirjata onnistunutta koesuoritusta.
+                  </Notice>
+                )}
                 <div className="assessment-options">
-                  <button
-                    className="button secondary"
-                    onClick={() => update({ rubricViewed: true })}
-                  >
-                    Vertaa itse malliin
-                  </button>
-                  <button
-                    className="button secondary"
-                    onClick={() => setShowAI((v) => !v)}
-                  >
-                    <Sparkles size={17} />
-                    Pyydä AI-arvio
-                  </button>
+                  {!draft.rubricViewed && (
+                    <button
+                      className="button secondary"
+                      onClick={() => update({ rubricViewed: true })}
+                    >
+                      Vertaa itse malliin
+                    </button>
+                  )}
+                  {hasAttempt(draft.written) &&
+                    !isUnsureAnswer(draft.written) &&
+                    draft.written.trim().length >= 20 && (
+                      <button
+                        className="button secondary"
+                        onClick={() => setShowAI((v) => !v)}
+                      >
+                        <Sparkles size={17} />
+                        Pyydä AI-arvio
+                      </button>
+                    )}
                 </div>
                 {draft.rubricViewed && (
                   <SelfRubric task={lesson.application} />

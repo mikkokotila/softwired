@@ -3,6 +3,7 @@ import { CheckCircle2, RotateCcw } from "lucide-react";
 import { lessons, lessonById } from "../content";
 import type { Lesson } from "../content/types";
 import { useStudy } from "../lib/store";
+import { hasAttempt, isUnsureAnswer } from "../lib/answer-flow";
 import { addActivity } from "../lib/storage";
 import { finishFocusItem } from "../lib/focus";
 import {
@@ -116,21 +117,30 @@ function Review({ lesson, onDone }: { lesson: Lesson; onDone: () => void }) {
   const { state, setState } = useStudy();
   const [answer, setAnswer] = useState("");
   const [stage, setStage] = useState(0);
+  const [didNotKnow, setDidNotKnow] = useState(false);
+  const [incorrectThisReview, setIncorrectThisReview] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const [startedAt] = useState(() => Date.now());
   const objective = state.objectives[lesson.id] ?? emptyObjective();
   const delayed = !!objective.seenAt && startedAt - objective.seenAt >= DAY;
   const question = lesson.questions[stage - 1];
   const finish = (value: number) => {
-    setScore(value);
+    // Never turn "I don't know", an incorrect practice question, or
+    // reading the model into evidence of successful independent retrieval.
+    const demonstrated = didNotKnow
+      ? 0
+      : incorrectThisReview
+        ? Math.min(value, 2)
+        : value;
+    setScore(demonstrated);
     setState((s) => {
       const o = s.objectives[lesson.id] ?? emptyObjective();
       const updated = delayed
-        ? recordRecall(o, value, "self", Date.now())
+        ? recordRecall(o, demonstrated, "self", Date.now())
         : {
             ...o,
             dueAt:
-              value >= 3
+              demonstrated >= 3
                 ? Math.max(
                     Date.now() + 10 * 60_000,
                     (o.seenAt ?? Date.now()) + DAY,
@@ -173,10 +183,22 @@ function Review({ lesson, onDone }: { lesson: Lesson; onDone: () => void }) {
           />
           <button
             className="button"
-            disabled={answer.trim().length < 10}
-            onClick={() => setStage(1)}
+            disabled={!hasAttempt(answer)}
+            onClick={() => {
+              setDidNotKnow(isUnsureAnswer(answer));
+              setStage(1);
+            }}
           >
             Lukitse yritys ja jatka
+          </button>
+          <button
+            className="button secondary"
+            onClick={() => {
+              setDidNotKnow(true);
+              setStage(1);
+            }}
+          >
+            En osaa vielä – jatka harjoituksiin
           </button>
         </>
       )}
@@ -185,13 +207,17 @@ function Review({ lesson, onDone }: { lesson: Lesson; onDone: () => void }) {
           key={question.id}
           question={question}
           rescue={objective.mistakes >= 2}
-          onAnswer={(choice, confidence) =>
+          onAnswer={(choice, confidence) => {
+            if (choice !== question.correct) setIncorrectThisReview(true);
             setState((s) => {
               const o = s.objectives[lesson.id] ?? emptyObjective();
               const last = [...o.evidence]
                 .reverse()
                 .find((e) => e.questionId === question.id);
-              const independent = !last || Date.now() - last.at >= DAY;
+              const independent =
+                !didNotKnow &&
+                choice !== -1 &&
+                (!last || Date.now() - last.at >= DAY);
               return {
                 ...s,
                 objectives: {
@@ -205,8 +231,8 @@ function Review({ lesson, onDone }: { lesson: Lesson; onDone: () => void }) {
                   }),
                 },
               };
-            })
-          }
+            });
+          }}
           onNext={() => setStage(stage + 1)}
           nextLabel={
             stage === 1 ? "Toinen tarkistus" : "Arvioi muistinvarainen vastaus"
@@ -229,7 +255,28 @@ function Review({ lesson, onDone }: { lesson: Lesson; onDone: () => void }) {
               </div>
             </div>
           )}
-          <SelfRubric task={lesson.recall} onScore={finish} />
+          {didNotKnow ? (
+            <>
+              <Notice>
+                Et tiennyt vielä vastausta. Tutki mallia rauhassa. Tätä
+                kertausta ei merkitä osatuksi, mutta voit jatkaa eteenpäin.
+              </Notice>
+              <SelfRubric task={lesson.recall} />
+              {score === null && (
+                <button className="button" onClick={() => finish(0)}>
+                  Merkitse harjoitelluksi ja jatka
+                </button>
+              )}
+            </>
+          ) : (
+            <SelfRubric task={lesson.recall} onScore={finish} />
+          )}
+          {incorrectThisReview && !didNotKnow && (
+            <Notice>
+              Jokin tarkistustehtävä jäi väärin. Oman arvion yläraja on 2/4,
+              jotta jatkettava kertaus ei näytä vielä hallinnalta.
+            </Notice>
+          )}
           {!delayed && (
             <Notice>
               Ensimmäisestä näkemisestä on alle vuorokausi. Tämä harjoitus ei

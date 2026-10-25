@@ -88,7 +88,7 @@ npm run test:e2e
 npm audit
 ```
 
-The E2E suite launches an isolated production server on port 4175 (overridable with E2E_PORT), with an explicitly empty Muse key. On a Mac with Chrome already installed, use `PLAYWRIGHT_CHANNEL=chrome npm run test:e2e`. Tests cover curriculum, scheduling/mastery, backups, official SDK request shape, API validation/auth/CSRF/limits/errors/timeouts, actual browser lesson/exam flows, offline reload and WCAG accessibility checks. See [verification record](docs/VERIFICATION.md) for the actual final run and limitations.
+The E2E suite launches an isolated production server on port 4175 (overridable with E2E_PORT), with an explicitly empty Muse key. On a Mac with Chrome already installed, use `PLAYWRIGHT_CHANNEL=chrome npm run test:e2e`. Tests cover curriculum, scheduling/mastery, backups, official SDK request shape, API validation/auth/CSRF/limits/errors/timeouts, actual browser lesson/exam flows, offline reload and WCAG accessibility checks. See [verification record](docs/VERIFICATION.md) for the actual final run and limitations. The progression-blocker regression and all-lesson novice-path audit are described in [Learning QC](docs/LEARNING_QC.md).
 
 ## Project layout
 

@@ -83,7 +83,9 @@ export function MultipleChoice({
               <strong>
                 {selected === question.correct
                   ? "Oikein. Huomaa myös perustelu."
-                  : "Tämä oli hyvä kohta pysähtyä."}
+                  : selected === -1
+                    ? "Et vielä tiennyt – opitaan yhdessä."
+                    : "Tämä oli hyvä kohta pysähtyä."}
               </strong>
               <p>{question.explanation}</p>
               {rescue && (
@@ -99,18 +101,30 @@ export function MultipleChoice({
           </button>
         </>
       ) : (
-        <button
-          className="button"
-          disabled={selected === undefined}
-          onClick={() => {
-            if (selected !== undefined) {
+        <>
+          <button
+            className="button"
+            disabled={selected === undefined}
+            onClick={() => {
+              if (selected !== undefined) {
+                setChecked(true);
+                onAnswer(selected, confidence);
+              }
+            }}
+          >
+            Tarkista vastaus
+          </button>
+          <button
+            className="button secondary"
+            onClick={() => {
+              setSelected(-1);
               setChecked(true);
-              onAnswer(selected, confidence);
-            }
-          }}
-        >
-          Tarkista vastaus
-        </button>
+              onAnswer(-1, "low");
+            }}
+          >
+            En osaa vielä – katso perustelu
+          </button>
+        </>
       )}
     </div>
   );
