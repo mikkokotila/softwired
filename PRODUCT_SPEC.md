@@ -2,7 +2,7 @@
 
 ## Goal
 
-Build a production-quality, mobile-first, offline-capable Finnish study web app/PWA for a 14-year-old taking a TERVEYSTIETO 8 exam. An assigned 65-page scanned PDF is the syllabus. The app must teach the syllabus completely _without requiring the student to read the original textbook_, assess recall and transfer, and help produce high-mark free-form written answers. A real frontier AI tutor is the central differentiator. Don't build a mock chatbot or call AI "connected" if there's no API key. Build a real secure server-side Meta Model API integration using an OpenAI-compatible Responses API with model default `muse-spark-1.3-contributor`, configurable via environment; it is expected MUSE_API_KEY currently absent. Report that accurately in the UI and docs.
+Build a production-quality, mobile-first, offline-capable Finnish study web app/PWA for a 14-year-old taking a TERVEYSTIETO 8 exam. An assigned 65-page scanned PDF is the syllabus. The app must teach the syllabus completely _without requiring the student to read the original textbook_, assess recall and transfer, and help produce high-mark free-form written answers. A real frontier AI tutor is the central differentiator. Don't build a mock chatbot or call AI "connected" if there's no API key. Build a real secure server-side Meta Model API integration using an OpenAI-compatible Responses API with model default `muse-spark-1.3-contributor`, configurable via environment; the key may be absent on other machines; this Mac uses an ignored local key file. The UI reports the configured state without exposing the key.
 
 ## Local paths and access
 

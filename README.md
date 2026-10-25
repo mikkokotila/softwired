@@ -100,4 +100,4 @@ This project reads an ignored local .env file. On this Mac, its Muse API key com
 
 **Contributor data-use notice:** Meta may use submitted text, context and responses to train and improve its AI models. Even store:false does not override Contributor training terms. The student should use fictional examples, avoid names or sensitive personal details and discuss AI use with a parent or guardian. Offline lessons and review work without any AI connection.
 
-Unit tests mock the remote SDK and make no paid provider calls. Live provider verification must be recorded separately.
+Unit tests mock the remote SDK and make no paid provider calls. Live provider verification is documented in docs/VERIFICATION.md; API connectivity is not proof of grading accuracy.
