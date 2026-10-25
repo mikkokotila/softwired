@@ -7,7 +7,7 @@ import path from "node:path";
 import { z } from "zod";
 import {
   tutorRequestSchema,
-  createOpenAITutor,
+  createMuseTutor,
   type TutorRequest,
   type TutorReply,
   tutorReplySchema,
@@ -111,6 +111,8 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
     res.json({
       configured: !!config.apiKey,
       model: config.model,
+      provider: "Meta Model API",
+      contributorMode: config.model.endsWith("-contributor"),
       verified: false,
       accessRequired: !authorized(req),
       csrf,
@@ -118,7 +120,7 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
         ? "Avain määritetty · yhteys varmistuu ensimmäisellä pyynnöllä"
         : "AI odottaa avainta",
       paidNotice:
-        "OpenAI API on maksullinen. Hinta määräytyy mallin ja tokenien mukaan; sovellus ei lupaa kiinteää hintaa.",
+        "Meta Model API on maksullinen. Contributor-tilassa Meta voi käyttää lähetettyjä sisältöjä tekoälymallien kouluttamiseen. Hinta riippuu tokeneista.",
     });
   });
   const csrfCheck: express.RequestHandler = (req, res, next) => {
@@ -174,7 +176,7 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
   const provider =
     injectedProvider ??
     (config.apiKey
-      ? createOpenAITutor(config.apiKey, config.model, config.editorialNote)
+      ? createMuseTutor(config.apiKey, config.model, config.editorialNote)
       : undefined);
   let day = new Date().toISOString().slice(0, 10);
   let calls = 0;
@@ -197,7 +199,7 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
     if (!provider) {
       res.status(503).json({
         error:
-          "AI odottaa avainta. Lisää OPENAI_API_KEY palvelimen .env-tiedostoon ja käynnistä palvelin uudelleen.",
+          "AI odottaa avainta. Lisää MUSE_API_KEY palvelimen .env-tiedostoon ja käynnistä palvelin uudelleen.",
       });
       return;
     }
@@ -270,16 +272,16 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
       else if (status === 401 || status === 403)
         res.status(502).json({
           error:
-            "OpenAI ei hyväksynyt avainta tai mallin käyttöoikeutta. Palvelimen ylläpitäjän on tarkistettava asetukset.",
+            "Meta Model API ei hyväksynyt avainta tai mallin käyttöoikeutta. Palvelimen ylläpitäjän on tarkistettava asetukset.",
         });
       else if (status === 404)
         res.status(502).json({
-          error: `Malli ${config.model} ei ole käytettävissä tällä tilillä. Ylläpitäjä voi valita mallin OPENAI_MODEL-asetuksella. Mallia ei vaihdeta automaattisesti.`,
+          error: `Malli ${config.model} ei ole käytettävissä tällä tilillä. Ylläpitäjä voi valita mallin MUSE_MODEL-asetuksella. Mallia ei vaihdeta automaattisesti.`,
         });
       else if (status === 429)
         res.status(429).json({
           error:
-            "OpenAI-tilin raja tai saldo esti pyynnön. Tarkista laskutus ja rajat.",
+            "Meta Model API -tilin raja tai saldo esti pyynnön. Tarkista laskutus ja rajat.",
         });
       else
         res.status(502).json({

@@ -11,7 +11,7 @@ vi.mock("openai", () => ({
     }
   },
 }));
-import { createOpenAITutor, tutorRequestSchema } from "../server/tutor";
+import { createMuseTutor, tutorRequestSchema } from "../server/tutor";
 it("uses official Responses shape, exact model, store:false, strict schema and server-only context", async () => {
   create.mockResolvedValue({
     status: "completed",
@@ -23,7 +23,10 @@ it("uses official Responses shape, exact model, store:false, strict schema and s
       nextQuestion: "Miksi tämä vaikuttaa arkeen?",
     }),
   });
-  const tutor = createOpenAITutor("test-server-only-key", "gpt-6-astra");
+  const tutor = createMuseTutor(
+    "test-server-only-key",
+    "muse-spark-1.3-contributor",
+  );
   const req = tutorRequestSchema.parse({
     lessonId: "1.1-1",
     mode: "grade",
@@ -36,7 +39,7 @@ it("uses official Responses shape, exact model, store:false, strict schema and s
   const result = await tutor(req, signal);
   expect(result.score).toBe(3);
   const [body, options] = create.mock.calls[0];
-  expect(body.model).toBe("gpt-6-astra");
+  expect(body.model).toBe("muse-spark-1.3-contributor");
   expect(body.store).toBe(false);
   expect(body.text.format.type).toBe("json_schema");
   expect(body.text.format.strict).toBe(true);
@@ -46,13 +49,14 @@ it("uses official Responses shape, exact model, store:false, strict schema and s
   expect(options.signal).toBe(signal);
   expect(construct).toHaveBeenCalledWith({
     apiKey: "test-server-only-key",
+    baseURL: "https://api.meta.ai/v1",
     timeout: 45000,
     maxRetries: 0,
   });
 });
 it("rejects truncated or refused provider output without inventing a score", async () => {
   create.mockResolvedValue({ status: "incomplete", output_text: "" });
-  const tutor = createOpenAITutor("test", "gpt-6-astra");
+  const tutor = createMuseTutor("test", "muse-spark-1.3-contributor");
   const req = tutorRequestSchema.parse({
     lessonId: "1.1-1",
     mode: "explain",

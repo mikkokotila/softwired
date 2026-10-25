@@ -78,3 +78,16 @@ it("reports malformed backup JSON in Finnish without echoing private file conten
     "Varmuuskopion muoto ei kelpaa",
   );
 });
+
+it("requires fresh permission after switching AI provider to Meta Contributor", () => {
+  const previous = { ...freshState(), consent: true };
+  const state = migrate(previous);
+  expect(state.consent).toBe(false);
+  expect(state.consentProvider).toBeUndefined();
+  const optedIn = migrate({
+    ...freshState(),
+    consent: true,
+    consentProvider: "meta-muse-spark-contributor-v1",
+  });
+  expect(optedIn.consent).toBe(true);
+});

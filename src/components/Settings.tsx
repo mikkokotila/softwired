@@ -16,6 +16,7 @@ import {
   STORAGE_KEY,
 } from "../lib/storage";
 import { getAIStatus, unlockAI, type AIStatus } from "../lib/api";
+import { AI_CONSENT_PROVIDER } from "../lib/storage";
 import { useOnline } from "../lib/hooks";
 import { Notice, PageHeading } from "./ui";
 function download(text: string, name: string) {
@@ -210,9 +211,10 @@ export function Settings({
             </strong>
           </div>
           <p className="small">
-            Malli: <strong>{status?.model ?? "gpt-6-astra"}</strong>. Avaimen
-            määrittäminen ei vielä varmista mallin käyttöoikeutta. Yhteys
-            varmistuu vasta onnistuneella pyynnöllä. Mallia ei vaihdeta
+            Malli:{" "}
+            <strong>{status?.model ?? "muse-spark-1.3-contributor"}</strong>.
+            Avaimen määrittäminen ei vielä varmista mallin käyttöoikeutta.
+            Yhteys varmistuu vasta onnistuneella pyynnöllä. Mallia ei vaihdeta
             automaattisesti.
           </p>
           {apiError && <Notice kind="error">{apiError}</Notice>}
@@ -221,26 +223,40 @@ export function Settings({
             Päivitä tila
           </button>
           <p className="small">
-            OpenAI API on maksullinen. Hinta riippuu mallista ja tokenimäärästä.
-            Kiinteää hinta-arviota ei näytetä, koska ajantasaista tilikohtaista
-            hintaa ei ole vahvistettu.
+            Meta Model API on maksullinen. Hinta riippuu mallista ja
+            tokenimäärästä. Kiinteää hinta-arviota ei näytetä, koska
+            ajantasaista tilikohtaista hintaa ei ole vahvistettu.
           </p>
           <p className="small">
             Kysymys, vastaus, oppitunnin teksti ja keskustelutilan viimeiset
-            viestit lähetetään OpenAI:lle vain pyynnöstäsi. API käyttää asetusta{" "}
+            viestit lähetetään Metalle vain pyynnöstäsi. API käyttää asetusta{" "}
             <code>store: false</code>. Tämä ei ole lupaus kaikesta
             palveluntarjoajan lokituksesta tai säilytysajoista.
+            Contributor-tilassa Meta voi käyttää lähetettyä opetuskontekstia ja
+            vastauksia mallien kehittämiseen ja kouluttamiseen. Älä anna omia
+            tai toisten henkilötietoja; alaikäisen on hyvä keskustella käytöstä
+            huoltajan kanssa.
           </p>
           <label className="toggle-row">
             <input
               type="checkbox"
-              checked={state.consent}
+              checked={
+                state.consent && state.consentProvider === AI_CONSENT_PROVIDER
+              }
               onChange={(e) =>
-                setState((s) => ({ ...s, consent: e.target.checked }))
+                setState((s) => ({
+                  ...s,
+                  consent: e.target.checked,
+                  consentProvider: e.target.checked
+                    ? AI_CONSENT_PROVIDER
+                    : undefined,
+                }))
               }
             />
             <span>
-              Sallin omien AI-pyyntöjeni lähettämisen OpenAI:lle.
+              Hyväksyn, että AI-vastaukseni lähetetään Metan
+              Contributor-palveluun ja niitä voidaan käyttää mallien
+              kouluttamiseen.
               <small>
                 Älä lähetä omia tai toisten arkaluonteisia tietoja. Suostumuksen
                 muuttaminen ei lähetä API-pyyntöä.
@@ -284,12 +300,11 @@ export function Settings({
           <details className="setup-details">
             <summary>Ylläpitäjän käyttöönotto</summary>
             <p>
-              Lisää OpenAI-avain vain palvelimen .env-tiedostoon:{" "}
-              <code>OPENAI_API_KEY</code>. Oletusmalli on{" "}
-              <code>gpt-6-astra</code>; mallin voi määrittää{" "}
-              <code>OPENAI_MODEL</code>-asetuksella. Käynnistä palvelin
-              uudelleen. Avainta ei koskaan kirjoiteta selaimeen tai
-              VITE_-muuttujaan.
+              Lisää Meta Model API -avain vain palvelimen .env-tiedostoon:{" "}
+              <code>MUSE_API_KEY</code>. Oletusmalli on{" "}
+              <code>muse-spark-1.3-contributor</code>; mallin voi määrittää{" "}
+              <code>MUSE_MODEL</code>-asetuksella. Käynnistä palvelin uudelleen.
+              Avainta ei koskaan kirjoiteta selaimeen tai VITE_-muuttujaan.
             </p>
           </details>
         </section>

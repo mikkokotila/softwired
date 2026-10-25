@@ -7,7 +7,7 @@ import {
   tutorRequestSchema,
 } from "../server/tutor";
 const config: AppConfig = {
-  model: "gpt-6-astra",
+  model: "muse-spark-1.3-contributor",
   appOrigin: "http://127.0.0.1:5173",
   cookieSecret: "unit-test-cookie-signing-secret",
 };
@@ -85,7 +85,7 @@ describe("secure API boundary", () => {
       .set("X-CSRF-Token", c.csrf)
       .send(payload);
     expect(r.status).toBe(200);
-    expect(r.body.model).toBe("gpt-6-astra");
+    expect(r.body.model).toBe("muse-spark-1.3-contributor");
     expect(r.body.source.book).toEqual([8, 11]);
     expect(provider).toHaveBeenCalledTimes(1);
     expect(r.text).not.toContain("unit-test-cookie");
@@ -140,7 +140,7 @@ describe("secure API boundary", () => {
       .set("X-CSRF-Token", c.csrf)
       .send(payload);
     expect(r.status).toBe(502);
-    expect(r.body.error).toContain("gpt-6-astra");
+    expect(r.body.error).toContain("muse-spark-1.3-contributor");
     expect(r.text).not.toContain("secret upstream");
   });
   it("bounds provider costs with per-process daily cap and per-IP request rate", async () => {

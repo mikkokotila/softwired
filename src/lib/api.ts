@@ -2,6 +2,8 @@ import type { TutorReply } from "../../server/tutor";
 export interface AIStatus {
   configured: boolean;
   model: string;
+  provider: string;
+  contributorMode: boolean;
   verified: boolean;
   accessRequired: boolean;
   csrf: string;

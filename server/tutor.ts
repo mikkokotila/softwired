@@ -99,12 +99,19 @@ TOIMITUKSELLINEN LISÄHUOMAUTUS: ${editorialNote.slice(0, 2000)}
 LUOTETTU OPETUSAINEISTO:
 ${JSON.stringify(trustedContext(request))}`;
 }
-export function createOpenAITutor(
+export function createMuseTutor(
   apiKey: string,
   model: string,
   editorialNote = "",
 ) {
-  const client = new OpenAI({ apiKey, timeout: 45_000, maxRetries: 0 });
+  // Muse Spark exposes the OpenAI-compatible Responses API, but calls Meta, not OpenAI.
+  // Never put the key or this client in the browser bundle.
+  const client = new OpenAI({
+    apiKey,
+    baseURL: "https://api.meta.ai/v1",
+    timeout: 45_000,
+    maxRetries: 0,
+  });
   return async (
     request: TutorRequest,
     signal: AbortSignal,

@@ -1,6 +1,6 @@
 # KIPINÄ
 
-A runnable Finnish Terveystieto 8 study PWA. React + TypeScript + Vite, an Express backend and the official OpenAI SDK. The private textbook scan is **not** required at runtime and is not distributed.
+A runnable Finnish Terveystieto 8 study PWA. React + TypeScript + Vite, an Express backend and the OpenAI-compatible SDK targeting Meta Model API. The private textbook scan is **not** required at runtime and is not distributed.
 
 ## Run
 
@@ -41,21 +41,21 @@ No key is needed to study. With no server key, the UI says **“AI odottaa avain
 
 ```sh
 cp .env.example .env
-# Edit .env locally: OPENAI_API_KEY=...
+# Edit .env locally: MUSE_API_KEY=... (Meta Model API key)
 npm run dev
 ```
 
-The default is exactly **`gpt-6-astra`**. `OPENAI_MODEL` is configurable; the app never silently substitutes a model. Your account must have access and billing. Responses API requests use `store:false`, strict JSON schema, `max_output_tokens:3000`, no automatic SDK retries and a 45-second SDK timeout. The route adds a 50-second deadline; browser cancellation is supported. A successful response includes server-derived lesson/page metadata. No original page images or PDF are sent.
+The default is exactly **`muse-spark-1.3-contributor`**. `MUSE_MODEL` is configurable; the app never silently substitutes a model. Your Meta Model API account must have access and billing. The SDK targets Meta Model API at https://api.meta.ai/v1 rather than OpenAI servers. Responses API requests use `store:false`, strict JSON schema, `max_output_tokens:3000`, no automatic SDK retries and a 45-second SDK timeout. The route adds a 50-second deadline; browser cancellation is supported. A successful response includes server-derived lesson/page metadata. No original page images or PDF are sent.
 
 Explain, Socratic hint, dialogue and rubric grading (0–4) use server-curated lesson context. Client-supplied context, unknown lessons and oversized input are rejected. Student messages/history are passed as untrusted data, not privileged instructions. Hint context excludes the model answer/rubric. No tools, browsing or secret material are supplied to the model. Prompt separation reduces injection risk; it is not a proof against all model misbehaviour. Grades remain advisory and need human judgement.
 
-The student explicitly consents before sending; questions, answers, course context and recent dialogue may go to OpenAI. Consent can be withdrawn in Settings and resets on import. Students are told to use fictional examples and avoid names, health details and family disclosures. Chats are ephemeral in the UI; written lesson/exam answers persist locally. `store:false` controls Responses storage and does not promise zero provider-side retention. API use is paid; the UI names the model and explains variable token-based cost without inventing a fixed price.
+The student explicitly consents before sending; questions, answers, course context and recent dialogue may go to Meta. Consent can be withdrawn in Settings and resets on import. Students are told to use fictional examples and avoid names, health details and family disclosures. Chats are ephemeral in the UI; written lesson/exam answers persist locally. `store:false` controls Responses storage but does NOT disable Meta Contributor training or promise zero provider-side retention. In Contributor mode Meta may use prompts, answers and context to train and improve AI models. Consent for the former provider is not reused. API use is paid; the UI names the model and explains variable token-based cost without inventing a fixed price.
 
-Implementation references: [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses), [structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs).
+Implementation references: [Meta Responses API](https://dev.meta.ai/docs/protocols/responses), [Meta structured outputs](https://dev.meta.ai/docs/cookbook/structured-output), [Meta Contributor terms](https://dev.meta.ai/legal/terms-of-service).
 
 ## Server and deployment
 
-The default bind is loopback. For public hosting, serve the Node app behind HTTPS, set `APP_ORIGIN` to its exact origin and set **`APP_ACCESS_TOKEN` to a random secret of at least 24 characters**. Public production origins and any non-loopback bind fail startup without it. A student enters this deployment access token in Settings. This is not the OpenAI key. Access is kept in a signed, HttpOnly, SameSite cookie; the token is not persisted in browser storage. Set `SESSION_SECRET` to a strong random value if sessions should survive server restarts. Cookies become Secure for HTTPS origins.
+The default bind is loopback. For public hosting, serve the Node app behind HTTPS, set `APP_ORIGIN` to its exact origin and set **`APP_ACCESS_TOKEN` to a random secret of at least 24 characters**. Public production origins and any non-loopback bind fail startup without it. A student enters this deployment access token in Settings. This is not the Meta Model API key. Access is kept in a signed, HttpOnly, SameSite cookie; the token is not persisted in browser storage. Set `SESSION_SECRET` to a strong random value if sessions should survive server restarts. Cookies become Secure for HTTPS origins.
 
 The API rejects other origins/cross-site requests, requires a signed session and matching CSRF header, rejects unknown body keys, limits message/history/body sizes and uses Helmet security headers. Rate limits: 8 tutor requests/minute/IP, 8 unlock attempts/15 minutes/IP, 2 simultaneous provider calls, and `AI_DAILY_LIMIT` attempted calls/day (100 default, UTC). All API responses are `no-store`; the service worker never caches `/api`.
 
@@ -88,8 +88,16 @@ npm run test:e2e
 npm audit
 ```
 
-The E2E suite launches an isolated production server on port 4175 (overridable with E2E_PORT), with an explicitly empty OpenAI key. On a Mac with Chrome already installed, use `PLAYWRIGHT_CHANNEL=chrome npm run test:e2e`. Tests cover curriculum, scheduling/mastery, backups, official SDK request shape, API validation/auth/CSRF/limits/errors/timeouts, actual browser lesson/exam flows, offline reload and WCAG accessibility checks. See [verification record](docs/VERIFICATION.md) for the actual final run and limitations.
+The E2E suite launches an isolated production server on port 4175 (overridable with E2E_PORT), with an explicitly empty Muse key. On a Mac with Chrome already installed, use `PLAYWRIGHT_CHANNEL=chrome npm run test:e2e`. Tests cover curriculum, scheduling/mastery, backups, official SDK request shape, API validation/auth/CSRF/limits/errors/timeouts, actual browser lesson/exam flows, offline reload and WCAG accessibility checks. See [verification record](docs/VERIFICATION.md) for the actual final run and limitations.
 
 ## Project layout
 
-`src/content/`: authored Finnish curriculum, glossary, finite exam bank and medical editorial note. `src/lib/`: learning rules, schema/migrations, browser storage and API client. `src/components/`: views and assessments. `server/`: isolated OpenAI integration and secure same-origin HTTP API. `tests/` and `e2e/`: unit/API and production-browser verification. No deployment, Git commit or push is performed by build commands.
+`src/content/`: authored Finnish curriculum, glossary, finite exam bank and medical editorial note. `src/lib/`: learning rules, schema/migrations, browser storage and API client. `src/components/`: views and assessments. `server/`: isolated Meta Muse Spark integration using the OpenAI-compatible SDK and secure same-origin HTTP API. `tests/` and `e2e/`: unit/API and production-browser verification. No deployment, Git commit or push is performed by build commands.
+
+## Local Meta credential
+
+This project reads an ignored local .env file. On this Mac, its Muse API key comes from the single muse_api_key entry in ~/.env. Do not copy ~/.env wholesale: it can contain unrelated credentials. The app credential file should have mode 0600 and must never be committed.
+
+**Contributor data-use notice:** Meta may use submitted text, context and responses to train and improve its AI models. Even store:false does not override Contributor training terms. The student should use fictional examples, avoid names or sensitive personal details and discuss AI use with a parent or guardian. Offline lessons and review work without any AI connection.
+
+Unit tests mock the remote SDK and make no paid provider calls. Live provider verification must be recorded separately.

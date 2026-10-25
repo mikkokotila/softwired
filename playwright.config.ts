@@ -31,7 +31,7 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 30_000,
     env: {
-      OPENAI_API_KEY: "",
+      MUSE_API_KEY: "",
       APP_ORIGIN: testOrigin,
       HOST: "127.0.0.1",
       PORT: String(testPort),
