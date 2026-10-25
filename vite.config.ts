@@ -8,13 +8,13 @@ export default defineConfig({
       registerType: "prompt",
       includeAssets: ["icons/*.png", "favicon.svg", "licenses/*.txt"],
       manifest: {
-        name: "KIPINÄ — Terveystieto 8",
-        short_name: "Kipinä",
+        name: "SOFTWIRED — Terveystieto 8",
+        short_name: "Softwired",
         description:
           "Pieni hetki, vahvempi osaaminen. Terveystiedon oma oppimispolku.",
         lang: "fi",
-        theme_color: "#14192b",
-        background_color: "#14192b",
+        theme_color: "#080b13",
+        background_color: "#080b13",
         display: "standalone",
         start_url: "/",
         scope: "/",

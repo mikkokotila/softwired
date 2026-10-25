@@ -1,0 +1,214 @@
+/*
+ * SOFTWIRED DESIGN SYSTEM • v1
+ * ------------------------------------------------------
+ * Edit colors here to reskin the entire application. Feature styles
+ * consume semantic tokens, never palette literals. Scale and motion
+ * primitives also live here so future themes need no component changes.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Font roles */
+  --font-body: "DM Sans Variable", system-ui, sans-serif;
+  --font-heading: "Space Grotesk Variable", "Manrope Variable", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  /* Spacing: four-point base, intentionally small finite scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Elevation / radius / outlines */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+  --border-thin: 1px;
+  --border-focus: 3px;
+  --shadow-floating: 0 16px 46px #00000040;
+  --shadow-panel: 0 15px 55px #00000026;
+  --shadow-hero: 0 24px 86px #00000052;
+  --motion-fast: 140ms;
+  --motion-normal: 220ms;
+  --motion-slow: 520ms;
+  --ease-out: cubic-bezier(0.2, 0.72, 0.2, 1);
+
+  /* Layout */
+  --layout-rail: 84px;
+  --layout-topbar: 88px;
+  --layout-max: 1456px;
+  --layout-mobile-nav: 79px;
+
+  /* Compatibility aliases for component styles; all semantic. */
+  --ink: var(--surface-rail);
+  --navy: var(--surface-strong);
+  --panel: var(--surface-card);
+  --line: var(--border-subtle);
+  --muted: var(--text-muted);
+  --lime: var(--accent);
+  --lilac: var(--violet-soft);
+  --peach: var(--amber-soft);
+  --blue: var(--cyan-soft);
+  --radius: var(--radius-lg);
+}
+
+:root,
+:root[data-theme="orbit"] {
+  color-scheme: dark;
+  --page-bg: #080b13;
+  --surface-rail: #0d111e;
+  --surface-base: #101625;
+  --surface-card: #141c2c;
+  --surface-raised: #1a2438;
+  --surface-strong: #24314b;
+  --surface-input: #0d1423;
+  --surface-glass: #151f32e8;
+  --surface-highlight: #1f3040;
+  --border-subtle: #29354e;
+  --border-strong: #4c6280;
+  --text-main: #f3f6fe;
+  --text-secondary: #bdc9dc;
+  --text-muted: #9eafc8;
+  --text-faint: #8397b3;
+  --text-on-accent: #101923;
+  --rail-text: #e0e9f7;
+  --rail-muted: #96a8c3;
+  --accent: #b9fa6c;
+  --accent-ink: #b9fa6c;
+  --accent-hover: #d0ff96;
+  --accent-soft: #243d28;
+  --cyan: #6ce9eb;
+  --cyan-soft: #1c3441;
+  --violet: #b39aff;
+  --violet-soft: #322b4e;
+  --amber: #ffc985;
+  --amber-soft: #403127;
+  --danger: #ffb8af;
+  --danger-soft: #45292e;
+  --success: #b9fa6c;
+  --success-soft: #253b28;
+  --overlay-subtle: #ffffff10;
+  --overlay-strong: #ffffff22;
+  --shadow-color: #00000050;
+  --focus-color: #7fe6e9;
+  --background-glow-a: #27386865;
+  --background-glow-b: #15586a28;
+  --hero-from: #253356;
+  --hero-via: #171e34;
+  --hero-to: #10303a;
+  --planet-top: #c3ff9c;
+  --planet-mid: #51c9b8;
+  --planet-deep: #184c63;
+  --planet-night: #292a68;
+}
+
+[data-theme="nebula"] {
+  color-scheme: dark;
+  --page-bg: #0b0915;
+  --surface-rail: #110e22;
+  --surface-base: #17142b;
+  --surface-card: #1d1934;
+  --surface-raised: #282244;
+  --surface-strong: #362e57;
+  --surface-input: #131022;
+  --surface-glass: #211a3de8;
+  --surface-highlight: #342550;
+  --border-subtle: #393050;
+  --border-strong: #71638f;
+  --text-main: #fbf5ff;
+  --text-secondary: #d8c9e9;
+  --text-muted: #bcaed3;
+  --text-faint: #a89abf;
+  --text-on-accent: #210e28;
+  --rail-text: #f0e4ff;
+  --rail-muted: #bdaddd;
+  --accent: #ffaeeb;
+  --accent-ink: #ffaeeb;
+  --accent-hover: #ffd0f3;
+  --accent-soft: #4b2b47;
+  --cyan: #9dd9ff;
+  --cyan-soft: #293c51;
+  --violet: #c0a5ff;
+  --violet-soft: #3a2c5b;
+  --amber: #ffd6a2;
+  --amber-soft: #4b3440;
+  --danger: #ffb8c8;
+  --danger-soft: #532b40;
+  --success: #a7f4de;
+  --success-soft: #28463e;
+  --overlay-subtle: #ffffff12;
+  --overlay-strong: #ffffff25;
+  --shadow-color: #03020c79;
+  --focus-color: #ffe1aa;
+  --background-glow-a: #55317b65;
+  --background-glow-b: #8c2f6629;
+  --hero-from: #3b295d;
+  --hero-via: #291e47;
+  --hero-to: #382244;
+  --planet-top: #ffbaf3;
+  --planet-mid: #bf75df;
+  --planet-deep: #694fbd;
+  --planet-night: #28225e;
+}
+
+[data-theme="daybreak"] {
+  color-scheme: light;
+  --page-bg: #ecf1f5;
+  --surface-rail: #15223a;
+  --surface-base: #f5f8fc;
+  --surface-card: #ffffff;
+  --surface-raised: #eef3fa;
+  --surface-strong: #dce7f3;
+  --surface-input: #ffffff;
+  --surface-glass: #fffefcf2;
+  --surface-highlight: #e0edf3;
+  --border-subtle: #c9d7e5;
+  --border-strong: #829cb7;
+  --text-main: #16263a;
+  --text-secondary: #334b65;
+  --text-muted: #476079;
+  --text-faint: #5d738a;
+  --text-on-accent: #052229;
+  --rail-text: #e0eafa;
+  --rail-muted: #9aaccc;
+  --accent: #85e7b2;
+  --accent-ink: #176d4d;
+  --accent-hover: #58d796;
+  --accent-soft: #d5f5e3;
+  --cyan: #11687c;
+  --cyan-soft: #d8f2f5;
+  --violet: #6e50a5;
+  --violet-soft: #e7e0f5;
+  --amber: #8c4a12;
+  --amber-soft: #fff0dc;
+  --danger: #ac3545;
+  --danger-soft: #fff0ef;
+  --success: #176d4d;
+  --success-soft: #dff5e7;
+  --overlay-subtle: #13223c08;
+  --overlay-strong: #13223c20;
+  --shadow-color: #30486220;
+  --focus-color: #176d87;
+  --background-glow-a: #d9e3f5a6;
+  --background-glow-b: #c5f0ed82;
+  --hero-from: #d4e9ef;
+  --hero-via: #e0ebfa;
+  --hero-to: #bce8da;
+  --planet-top: #efffd1;
+  --planet-mid: #64d8c3;
+  --planet-deep: #4088ad;
+  --planet-night: #4a58ab;
+  --shadow-floating: 0 16px 46px #35476618;
+  --shadow-panel: 0 15px 55px #35476618;
+  --shadow-hero: 0 24px 86px #35476629;
+}

@@ -1,6 +1,10 @@
-# KIPINÄ
+# SOFTWIRED
 
-A runnable Finnish Terveystieto 8 study PWA. React + TypeScript + Vite, an Express backend and the official OpenAI SDK, with an optional age-appropriate API tutor. The private textbook scan is **not** required at runtime and is not distributed.
+Softwired is a Finnish Terveystieto 8 study PWA with a tokenized gaming-inspired UI. React + TypeScript + Vite, an Express backend and the official OpenAI SDK, with an optional age-appropriate API tutor. The private textbook scan is **not** required at runtime and is not distributed.
+
+## UI and themes
+
+The student-facing product is Softwired, with the **Orbit** Command Center visual direction (gaming-hub inspiration). The design system is organized around semantic CSS tokens, and users can switch between Orbit, Nebula and Daybreak in Settings without changing their study history. Design documentation, token groups, component rules and instructions for extending the palette are in [Design System](docs/DESIGN_SYSTEM.md). Existing browser progress intentionally retains its original internal storage key for safe migration.
 
 ## Run
 

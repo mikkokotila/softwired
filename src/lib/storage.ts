@@ -164,7 +164,7 @@ export function migrate(raw: unknown): StudyState {
     return next;
   }
   throw new Error(
-    "Varmuuskopio ei ole tuettua Kipinä-muotoa. Nykyisiä tietoja ei muutettu.",
+    "Varmuuskopio ei ole tuettua Softwired-muotoa. Nykyisiä tietoja ei muutettu.",
   );
 }
 export interface LoadResult {
@@ -204,7 +204,7 @@ export function parseBackup(text: string): StudyState {
     return { ...imported, consent: false, consentProvider: undefined };
   } catch {
     throw new Error(
-      "Varmuuskopion muoto ei kelpaa. Valitse Kipinästä viety JSON-tiedosto. Nykyisiä tietoja ei muutettu.",
+      "Varmuuskopion muoto ei kelpaa. Valitse Softwiredistä viety JSON-tiedosto. Nykyisiä tietoja ei muutettu.",
     );
   }
 }

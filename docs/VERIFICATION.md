@@ -1,3 +1,5 @@
+> Historical QA records below may use the former prototype name. The product is now called **Softwired**; study-state storage keys intentionally remain stable.
+
 # Verification record
 
 25 October 2026, macOS arm64. Supported runtime used: **Node v24.22.1** through `npx --yes --package=node@24 -c '…'`; the system Node v23.10.0 was not changed. The Meta Model API credential was read from ~/.env into an ignored local credential file. Two explicitly initiated live provider calls were made using Muse Spark 1.3 Contributor, without exposing the key.

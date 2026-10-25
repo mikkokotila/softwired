@@ -1,5 +1,5 @@
 {
-  "name": "kipina-study",
+  "name": "softwired-study",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -23,6 +23,7 @@
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.3.0",
     "@fontsource-variable/manrope": "^5.3.0",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",

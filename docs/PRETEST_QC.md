@@ -1,4 +1,4 @@
-# Kipinä — pre-test release quality review
+# Softwired — pre-test release quality review
 
 Date: 25 October 2026. Location: ~/dev/softwired. Audience: a 14-year-old Finnish health education student.
 

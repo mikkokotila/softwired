@@ -13,7 +13,7 @@ test("dashboard, navigation and responsive layout have no horizontal overflow", 
 }, testInfo) => {
   await onboard(page);
   await expect(
-    page.getByRole("heading", { name: "Hyvä päivä oivaltaa." }),
+    page.getByRole("heading", { name: "Ota koe haltuun." }),
   ).toBeVisible();
   for (const path of [
     "/",
@@ -217,18 +217,22 @@ test("backup import validates before replacing local state", async ({
   const prior = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("kipina.study.v2")!),
   );
-  await page.getByLabel("Valitse Kipinän varmuuskopiotiedosto").setInputFiles({
-    name: "invalid.json",
-    mimeType: "application/json",
-    buffer: Buffer.from("{invalid"),
-  });
+  await page
+    .getByLabel("Valitse Softwiredin varmuuskopiotiedosto")
+    .setInputFiles({
+      name: "invalid.json",
+      mimeType: "application/json",
+      buffer: Buffer.from("{invalid"),
+    });
   await expect(page.getByRole("alert")).toBeVisible();
   const imported = { ...prior, consent: true, examDate: "2026-12-01" };
-  await page.getByLabel("Valitse Kipinän varmuuskopiotiedosto").setInputFiles({
-    name: "backup.json",
-    mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(imported)),
-  });
+  await page
+    .getByLabel("Valitse Softwiredin varmuuskopiotiedosto")
+    .setInputFiles({
+      name: "backup.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify(imported)),
+    });
   await page.getByRole("button", { name: "Korvaa varmuuskopiolla" }).click();
   await expect(page.getByLabel("Oman kokeen päivämäärä")).toHaveValue(
     "2026-12-01",

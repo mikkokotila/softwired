@@ -1,287 +1,323 @@
 import {
   ArrowRight,
   ArrowUpRight,
-  BookOpen,
   Brain,
   Check,
-  ChevronRight,
   Clock3,
-  Heart,
-  Lightbulb,
+  HeartPulse,
+  Map,
   RotateCcw,
   ShieldCheck,
   Sparkles,
+  Swords,
   Target,
+  Zap,
 } from "lucide-react";
 import { lessons, sections } from "../content";
 import { useStudy } from "../lib/store";
 import { nextLesson, reviewQueue, stats } from "../lib/learning";
 import { localDay } from "../lib/storage";
-import { ArrowLink, ButtonLink, PageHeading, ProgressBar } from "./ui";
+import { ProgressBar } from "./ui";
+
+const topics = [
+  {
+    label: "Mieli ja ihmissuhteet",
+    icon: Brain,
+    tone: "violet",
+    count: 3,
+    description: "Ajatukset, tunteet ja suhteet",
+  },
+  {
+    label: "Päihteet ja valinnat",
+    icon: ShieldCheck,
+    tone: "amber",
+    count: 3,
+    description: "Vaikutukset ja turvalliset valinnat",
+  },
+  {
+    label: "Ravinto ja liike",
+    icon: HeartPulse,
+    tone: "cyan",
+    count: 3,
+    description: "Keho ja hyvinvointi",
+  },
+  {
+    label: "Ensiapu",
+    icon: Target,
+    tone: "lime",
+    count: 4,
+    description: "Osaaminen, josta voi olla apua",
+  },
+] as const;
+
 export function Dashboard() {
   const { state } = useStudy();
-  const s = stats(state.objectives);
+  const summary = stats(state.objectives);
   const next = nextLesson(state.objectives);
   const due = reviewQueue(state.objectives);
-  const today = state.activity.find((a) => a.day === localDay());
+  const finishedSections = sections.filter((section) =>
+    section.lessons.every(
+      (lesson) => !!state.objectives[lesson.id]?.completedAt,
+    ),
+  ).length;
+  const currentRegion = Math.min(finishedSections + 1, sections.length);
+
   const dates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - 6 + i);
     return d;
   });
+
   return (
-    <>
-      <PageHeading eyebrow="OMA TAHTI. OMA POLKU." title="Hyvä päivä oivaltaa.">
-        <span className="date-label">
+    <div className="command-dashboard">
+      <div className="command-meta">
+        <span className="command-kicker">
+          <span className="live-dot" /> OMA TEHTÄVÄKESKUS · TERVEYSTIETO 8
+        </span>
+        <span className="command-status">
           {new Intl.DateTimeFormat("fi-FI", {
             day: "numeric",
             month: "long",
-          }).format(new Date())}
-          <span className="live-dot" />
-          Sinun oppimistilasi
+          }).format(new Date())}{" "}
+          · Edistyminen tallessa
         </span>
-      </PageHeading>
-      <div className="dashboard-grid">
-        <section className="hero-card">
-          <div className="hero-content">
-            <span className="hero-badge">
-              <span />
-              PIENI HETKI, ISO OIVALLUS
-            </span>
-            <h2>
-              Yksi pieni kipinä.
-              <br />
-              <span>Aina vähän varmempi.</span>
-            </h2>
-            <p>
-              Terveystiedon koe haltuun yksi oivallus kerrallaan. Tänään riittää
-              20 minuutin oma hetki.
-            </p>
-            <ButtonLink href="#/session">Aloita päivän 20 minuuttia</ButtonLink>
-            <span className="hero-caption">
-              <ShieldCheck size={14} /> Oma edistyminen tallentuu tälle
-              laitteelle
-            </span>
-          </div>
-          <div className="hero-art" aria-hidden="true">
-            <div className="orbit orbit-one" />
-            <div className="orbit orbit-two" />
-            <div className="orbit orbit-three" />
-            <div className="orb-center">
-              <Sparkles size={39} />
-              <strong>
-                20<span>min</span>
-              </strong>
-              <small>AIKAA ITSELLESI</small>
-            </div>
-            <div className="orbit-icon orbit-brain">
-              <Brain size={29} />
-            </div>
-            <div className="orbit-icon orbit-heart">
-              <Heart size={25} />
-            </div>
-            <div className="orbit-icon orbit-light">
-              <Lightbulb size={25} />
-            </div>
-            <div className="spark spark-one">✳</div>
-            <div className="spark spark-two">+</div>
-            <span className="art-label">ymmärrä. muista. sovella.</span>
-          </div>
-        </section>
-        <section className="week-card card">
-          <div className="section-label">
-            <span className="eyebrow">SINUN VIIKKOSI</span>
-            <span className="icon-circle">
-              <Target size={18} />
-            </span>
-          </div>
-          <h2>Tilaa oppimiselle.</h2>
-          <p className="muted small">
-            Jokainen hetki auttaa. Taukopäiväkin on sallittu.
+      </div>
+
+      <section className="command-hero" aria-labelledby="command-hero-title">
+        <div className="command-hero-copy">
+          <p className="mission-kicker">PÄIVÄN PÄÄTEHTÄVÄ · TERVEYSTIETO 8</p>
+          <h1 id="command-hero-title">
+            Ota koe <span>haltuun.</span>
+          </h1>
+          <p className="command-hero-description">
+            13 aihealuetta. 52 tehtäväpolkua. Yksi tavoite: ymmärrät asiat
+            oikeasti — et vain tunnista oikeaa vastausta.
           </p>
-          <div className="week-dots">
-            {dates.map((d) => {
-              const active = state.activity.some((a) => a.day === localDay(d));
-              const isToday = localDay(d) === localDay();
-              return (
-                <div key={d.toISOString()}>
-                  <span>
-                    {new Intl.DateTimeFormat("fi-FI", {
-                      weekday: "narrow",
-                    }).format(d)}
-                  </span>
-                  <span
-                    className={`day-circle ${active ? "active" : ""} ${isToday ? "today" : ""}`}
-                    aria-label={`${d.toLocaleDateString("fi-FI")}: ${active ? "opiskeltu" : "ei merkintää"}`}
-                  >
-                    {active ? <Check size={15} /> : d.getDate()}
-                  </span>
-                </div>
-              );
-            })}
+          <div className="command-hero-actions">
+            <a href={"#/lesson/" + next.id} className="button">
+              <Zap size={18} fill="currentColor" />{" "}
+              {summary.completed
+                ? "JATKA TEHTÄVÄÄ"
+                : "ALOITA ENSIMMÄINEN TEHTÄVÄ"}
+            </a>
+            <a href="#/course" className="button secondary">
+              <Map size={17} /> KATSO KARTTA
+            </a>
           </div>
-          <div className="week-bottom">
+          <p className="command-hero-save">
+            <ShieldCheck size={14} /> Vastaukset tallentuvat tälle laitteelle
+          </p>
+        </div>
+        <div className="command-hero-scene" aria-hidden="true">
+          <div className="command-orbit command-orbit-back" />
+          <div className="command-planet" />
+          <div className="command-orbit command-orbit-front" />
+          <div className="command-floating-top">
+            ALUE {String(currentRegion).padStart(2, "0")} / {sections.length}
+          </div>
+          <div className="command-floating-status">
+            <strong>MISSION STATUS</strong>
             <span>
-              <strong>{today?.lessons ?? 0}</strong> oppituntia tänään
+              ✦ {summary.completed} / {lessons.length} TEHTÄVÄÄ
+            </span>
+          </div>
+          <span className="command-space-spark command-space-spark-one">✦</span>
+          <span className="command-space-spark command-space-spark-two">✳</span>
+        </div>
+      </section>
+
+      <div className="mission-section-heading">
+        <div>
+          <p className="eyebrow">MISSION SELECT</p>
+          <h2>Valitse seuraava tehtävä</h2>
+        </div>
+        <span>Oma tahti · ei pakollisia putkia</span>
+      </div>
+
+      <div className="mission-grid">
+        <a
+          className="mission-card mission-card-featured"
+          href={"#/lesson/" + next.id}
+        >
+          <span className="mission-card-symbol" aria-hidden="true">
+            <Brain size={88} />
+          </span>
+          <span className="mission-card-tag">
+            01 · {summary.completed ? "JATKA TÄSTÄ" : "ALOITA TÄSTÄ"}
+          </span>
+          <h3>{next.title}</h3>
+          <p>{next.hook}</p>
+          <span className="mission-card-action">
+            AVAA TEHTÄVÄ <ArrowUpRight size={18} />
+          </span>
+        </a>
+        <a className="mission-card mission-card-recall" href="#/practice">
+          <span className="mission-card-symbol" aria-hidden="true">
+            <RotateCcw size={80} />
+          </span>
+          <span className="mission-card-tag">02 · KERTAUS</span>
+          <h3>Muistitreeni</h3>
+          <p>
+            {due.length
+              ? due.length +
+                " ajankohtaista kertausta. Testaa, mitä muistat ilman mallia."
+              : "Kun olet oppinut uusia asioita, voit vahvistaa niitä täällä."}
+          </p>
+          <span className="mission-card-action">
+            KERTAA NYT <ArrowUpRight size={18} />
+          </span>
+        </a>
+        <a className="mission-card mission-card-boss" href="#/exam">
+          <span className="mission-card-symbol" aria-hidden="true">
+            <Swords size={78} />
+          </span>
+          <span className="mission-card-tag">03 · BOSS LEVEL</span>
+          <h3>Koeareena</h3>
+          <p>
+            15 tai 40 minuutin koemainen haaste. Näytä, miten osaat selittää ja
+            perustella.
+          </p>
+          <span className="mission-card-action">
+            VALMISTAUDU <ArrowUpRight size={18} />
+          </span>
+        </a>
+      </div>
+
+      <div className="command-lower-grid">
+        <section className="command-panel">
+          <div className="command-panel-title">
+            <span className="eyebrow">OMA ETENEMINEN</span>
+            <span className="command-panel-icon">
+              <Sparkles size={18} />
+            </span>
+          </div>
+          <h3>Olet jo matkalla.</h3>
+          <div className="command-progress-label">
+            <span>Oppimispolun eteneminen</span>
+            <strong>
+              {summary.completed} / {lessons.length}
+            </strong>
+          </div>
+          <ProgressBar
+            value={(summary.completed / lessons.length) * 100}
+            label="Suoritettujen oppituntien osuus"
+          />
+          <div className="command-metrics">
+            <span>
+              <strong>{sections.length}</strong> aihealuetta
             </span>
             <span>
-              <strong>{today?.reviews ?? 0}</strong> kertausta
+              <strong>{summary.mastered}</strong> hallussa
             </span>
+            <span>
+              <strong>{due.length}</strong> kertausta
+            </span>
+          </div>
+          <a className="command-panel-link" href="#/progress">
+            Näytä oma edistyminen <ArrowRight size={17} />
+          </a>
+        </section>
+
+        <section className="command-panel command-choice-panel">
+          <div className="command-panel-title">
+            <span className="eyebrow">VALITSE PELITAPA</span>
+            <span className="command-panel-icon">
+              <Clock3 size={18} />
+            </span>
+          </div>
+          <h3>Miten haluat opiskella tänään?</h3>
+          <p>
+            Valitse sopiva aika. Kaikki vaihtoehdot vievät kohti samaa
+            tavoitetta.
+          </p>
+          <div className="command-quick-links">
+            <a href={"#/lesson/" + next.id}>
+              <Zap size={15} /> 5 min
+            </a>
+            <a href="#/session">
+              <Target size={15} /> 20 min
+            </a>
+            <a href="#/course">
+              <Map size={15} /> Vapaasti
+            </a>
           </div>
         </section>
       </div>
-      <div className="stat-grid">
-        <div className="stat-item">
-          <span className="icon-square lilac">
-            <BookOpen size={20} />
-          </span>
-          <div>
-            <strong>
-              {s.completed}
-              <span> / {lessons.length}</span>
-            </strong>
-            <p>Oppituntia läpikäyty</p>
-          </div>
+
+      <div className="mission-section-heading mission-topic-heading">
+        <div>
+          <p className="eyebrow">WORLD MAP</p>
+          <h2>Tutki aihealueita</h2>
         </div>
-        <div className="stat-item">
-          <span className="icon-square lime">
-            <Target size={20} />
-          </span>
-          <div>
-            <strong>
-              {s.mastered}
-              <span> / {lessons.length}</span>
-            </strong>
-            <p>Osaamistavoitetta hallussa</p>
-          </div>
-        </div>
-        <div className="stat-item">
-          <span className="icon-square peach">
-            <RotateCcw size={20} />
-          </span>
-          <div>
-            <strong>
-              {due.length}
-              <span> tehtävää</span>
-            </strong>
-            <p>Valmiina kertaukseen</p>
-          </div>
-          <a
-            href="#/practice"
-            className="round-link"
-            aria-label="Siirry kertaukseen"
-          >
-            <ArrowUpRight size={19} />
-          </a>
-        </div>
+        <a href="#/course" className="command-all-link">
+          Koko oppimispolku <ArrowRight size={17} />
+        </a>
       </div>
-      <div className="content-columns">
-        <section>
-          <div className="section-heading">
-            <h2>Seuraava oivallus</h2>
-            <ArrowLink href="#/course">Koko oppimispolku</ArrowLink>
-          </div>
-          <a className="next-lesson-card" href={`#/lesson/${next.id}`}>
-            <div className="lesson-art lilac">
-              <Brain size={38} />
-              <span className="tiny-spark">✳</span>
-            </div>
-            <div className="next-lesson-content">
-              <span className="eyebrow">
-                {next.sectionId} ·{" "}
-                {sections.find((x) => x.id === next.sectionId)?.group}
+      <div className="command-world-grid">
+        {topics.map((topic, index) => {
+          const chapterLessons = sections
+            .filter((s) => s.group === topic.label)
+            .flatMap((s) => s.lessons);
+          const complete = chapterLessons.filter(
+            (l) => !!state.objectives[l.id]?.completedAt,
+          ).length;
+          return (
+            <a
+              key={topic.label}
+              href={"#/course?group=" + encodeURIComponent(topic.label)}
+              className={"command-world-card tone-" + topic.tone}
+            >
+              <span className="command-world-no">
+                SEKTORI {String(index + 1).padStart(2, "0")}
               </span>
-              <h3>{next.title}</h3>
-              <p>{next.hook}</p>
-              <span className="lesson-meta">
-                <Clock3 size={14} /> noin {next.minutes} min <span>•</span> Lue,
-                muista ja sovella
+              <topic.icon size={28} />
+              <h3>{topic.label}</h3>
+              <p>{topic.description}</p>
+              <span className="command-world-bottom">
+                {complete} / {chapterLessons.length} tehtävää{" "}
+                <ArrowUpRight size={17} />
               </span>
-            </div>
-            <span className="round-link dark">
-              <ArrowRight size={20} />
-            </span>
-          </a>
-          <div className="section-heading course-preview-heading">
-            <h2>Kaikki alkaa ymmärtämisestä.</h2>
-            <span className="small muted">13 osiota · 52 oppituntia</span>
-          </div>
-          <div className="topic-preview-grid">
-            {[
-              {
-                title: "Mieli ja ihmissuhteet",
-                icon: Brain,
-                color: "lilac",
-                count: 3,
-              },
-              {
-                title: "Päihteet ja valinnat",
-                icon: ShieldCheck,
-                color: "peach",
-                count: 3,
-              },
-              {
-                title: "Ravinto ja liike",
-                icon: Heart,
-                color: "lime",
-                count: 3,
-              },
-              { title: "Ensiapu", icon: Target, color: "blue", count: 4 },
-            ].map((x) => (
-              <a
-                href={`#/course?group=${encodeURIComponent(x.title)}`}
-                key={x.title}
-                className="topic-preview"
-              >
-                <span className={`icon-square ${x.color}`}>
-                  <x.icon size={23} />
-                </span>
-                <h3>{x.title}</h3>
+            </a>
+          );
+        })}
+      </div>
+
+      <section className="command-week">
+        <div>
+          <p className="eyebrow">VIIKON JÄLKI</p>
+          <h2>Jokainen oppimiskerta auttaa.</h2>
+          <p>Taukopäiväkin on sallittu. Tätä ei tarvitse suorittaa putkeen.</p>
+        </div>
+        <div className="command-week-days">
+          {dates.map((date) => {
+            const key = localDay(date);
+            const active = state.activity.some((entry) => entry.day === key);
+            const isToday = key === localDay();
+            return (
+              <div className="command-week-day" key={key}>
                 <span>
-                  {x.count} osiota
-                  <ChevronRight size={16} />
+                  {new Intl.DateTimeFormat("fi-FI", {
+                    weekday: "narrow",
+                  }).format(date)}
                 </span>
-              </a>
-            ))}
-          </div>
-        </section>
-        <aside className="dashboard-aside">
-          <section className="readiness-card card">
-            <div className="section-label">
-              <span className="eyebrow">VAHVISTUVA OSAAMINEN</span>
-              <Sparkles size={17} />
-            </div>
-            <h2>
-              Harjoituksesta
-              <br /> varmuuteen.
-            </h2>
-            <div className="readiness-number">
-              {Math.round((s.mastered / lessons.length) * 100)}
-              <span>%</span>
-            </div>
-            <ProgressBar
-              value={(s.mastered / lessons.length) * 100}
-              label="Hallittujen tavoitteiden osuus"
-            />
-            <p className="small muted">
-              Osaaminen varmistuu itsenäisillä tehtävillä ja viivästetyllä
-              muistamisella. Lukeminen on vasta alku.
-            </p>
-            <ArrowLink href="#/progress">Näytä oma edistyminen</ArrowLink>
-          </section>
-          <a href="#/tutor" className="tutor-teaser">
-            <span className="icon-square">
-              <Sparkles size={21} />
-            </span>
-            <h3>Jäikö jokin mietityttämään?</h3>
-            <p>Oma AI-opettaja auttaa ymmärtämään ja perustelemaan.</p>
-            <span className="text-link">
-              Tutustu opettajaan
-              <ArrowUpRight size={17} />
-            </span>
-          </a>
-        </aside>
-      </div>
-    </>
+                <span
+                  className={
+                    "command-week-dot " +
+                    (active ? "is-complete " : "") +
+                    (isToday ? "is-today" : "")
+                  }
+                  aria-label={
+                    date.toLocaleDateString("fi-FI") +
+                    (active ? ": opiskeltu" : ": ei merkintää")
+                  }
+                >
+                  {active ? <Check size={15} /> : date.getDate()}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </div>
   );
 }

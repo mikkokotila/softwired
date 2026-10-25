@@ -19,6 +19,7 @@ import { getAIStatus, unlockAI, type AIStatus } from "../lib/api";
 import { AI_CONSENT_PROVIDER } from "../lib/storage";
 import { useOnline } from "../lib/hooks";
 import { Notice, PageHeading } from "./ui";
+import { ThemePicker } from "../design/ThemePicker";
 function download(text: string, name: string) {
   const url = URL.createObjectURL(
     new Blob([text], { type: "application/json" }),
@@ -82,7 +83,7 @@ export function Settings({
   const exportState = () =>
     download(
       JSON.stringify(state, null, 2),
-      `kipina-varmuuskopio-${new Date().toISOString().slice(0, 10)}.json`,
+      `softwired-varmuuskopio-${new Date().toISOString().slice(0, 10)}.json`,
     );
   return (
     <>
@@ -91,6 +92,7 @@ export function Settings({
         title="Oma oppimistila, omat tiedot."
       />
       <div className="settings-grid">
+        <ThemePicker />
         <section className="card settings-section">
           <span className="icon-square lime">
             <HardDrive size={24} />
@@ -135,7 +137,7 @@ export function Settings({
             className="sr-only"
             type="file"
             accept=".json,application/json"
-            aria-label="Valitse Kipinän varmuuskopiotiedosto"
+            aria-label="Valitse Softwiredin varmuuskopiotiedosto"
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) return;
@@ -169,7 +171,7 @@ export function Settings({
                 onClick={() => {
                   try {
                     const raw = localStorage.getItem(STORAGE_KEY);
-                    if (raw) download(raw, "kipina-vanha-tallenne.json");
+                    if (raw) download(raw, "softwired-vanha-tallenne.json");
                   } catch {
                     setError("Vanhaa tallennetta ei voitu lukea.");
                   }
@@ -322,7 +324,7 @@ export function Settings({
           </p>
           {install && (
             <button className="button" onClick={install}>
-              Asenna Kipinä
+              Asenna Softwired
             </button>
           )}
           {updateAvailable && (

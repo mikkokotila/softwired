@@ -1,13 +1,17 @@
-import { ArrowUpRight, Check, ChevronRight, Zap } from "lucide-react";
+import { ArrowUpRight, Check, ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { mastery, masteryLabel, type Objective } from "../lib/learning";
-export function Brand() {
+export function Brand({ showText = true }: { showText?: boolean }) {
   return (
-    <a className="brand" href="#/" aria-label="Kipinä, etusivu">
-      <span className="brand-icon">
-        <Zap fill="currentColor" size={23} />
+    <a className="brand" href="#/" aria-label="Softwired, etusivu">
+      <span className="brand-icon" aria-hidden="true">
+        ✳
       </span>
-      KIPINÄ
+      {showText && (
+        <span className="brand-word">
+          SOFTWIRED<span className="brand-period">.</span>
+        </span>
+      )}
     </a>
   );
 }

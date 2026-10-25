@@ -1,4 +1,4 @@
-# Cloudflare Pages public pilot
+# Softwired · Cloudflare Pages public pilot
 
 Host: https://softwired.mikkokotila.com
 Repository: https://github.com/mikkokotila/softwired

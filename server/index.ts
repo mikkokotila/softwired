@@ -28,7 +28,7 @@ const app = createApp({
 });
 const server = app.listen(port, host, () =>
   console.log(
-    `Kipinä API ${host}:${port} · ${model} · ${process.env.OPENAI_API_KEY ? "avain määritetty, ei vielä varmennettu" : "AI odottaa avainta"}`,
+    `Softwired API ${host}:${port} · ${model} · ${process.env.OPENAI_API_KEY ? "avain määritetty, ei vielä varmennettu" : "AI odottaa avainta"}`,
   ),
 );
 server.requestTimeout = 60_000;

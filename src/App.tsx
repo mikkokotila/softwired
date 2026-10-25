@@ -5,8 +5,9 @@ import {
   BookOpen,
   ChevronRight,
   Download,
-  FileText,
   Home,
+  Map,
+  Swords,
   Menu,
   RotateCcw,
   Settings2,
@@ -14,7 +15,6 @@ import {
   Sparkles,
   WifiOff,
   X,
-  Zap,
 } from "lucide-react";
 import { lessonById } from "./content";
 import { useOnline, useRoute } from "./lib/hooks";
@@ -35,9 +35,9 @@ interface InstallPrompt extends Event {
 }
 const nav = [
   { href: "/", label: "Tänään", icon: Home },
-  { href: "/course", label: "Oppimispolku", icon: BookOpen },
+  { href: "/course", label: "Oppimispolku", icon: Map },
   { href: "/practice", label: "Kertaa", icon: RotateCcw },
-  { href: "/exam", label: "Harjoituskoe", icon: FileText },
+  { href: "/exam", label: "Harjoituskoe", icon: Swords },
   { href: "/tutor", label: "AI-opettaja", icon: Sparkles },
   { href: "/progress", label: "Edistyminen", icon: BarChart3 },
 ];
@@ -192,7 +192,8 @@ export default function App() {
         className={`sidebar ${menu ? "menu-open" : ""}`}
       >
         <div className="sidebar-top">
-          <Brand />
+          <Brand showText={false} />
+          <span className="drawer-brand-name">SOFTWIRED</span>
           <button
             className="icon-button mobile-close"
             onClick={() => setMenu(false)}
@@ -215,6 +216,8 @@ export default function App() {
           {nav.map((n) => (
             <a
               key={n.href}
+              data-tooltip={n.label}
+              aria-label={n.label}
               href={`#${n.href}`}
               aria-current={active === n.href ? "page" : undefined}
               className={active === n.href ? "active" : ""}
@@ -242,6 +245,8 @@ export default function App() {
           </div>
           <a
             href="#/settings"
+            aria-label="Asetukset"
+            data-tooltip="Asetukset"
             className={`settings-link ${active === "/settings" ? "active" : ""}`}
             onClick={() => setMenu(false)}
           >
@@ -273,8 +278,11 @@ export default function App() {
             </button>
             <Brand />
           </div>
+          <div className="topbar-identity">
+            <Brand />
+            <span className="topbar-tagline">YOUR KNOWLEDGE, LEVELLED UP</span>
+          </div>
           <span className="topbar-breadcrumb">
-            OMA OPPIMISTILA <ChevronRight size={13} />
             <strong>
               {nav.find((n) => n.href === active)?.label ?? "Asetukset"}
             </strong>
@@ -288,7 +296,7 @@ export default function App() {
               className="profile-button"
               aria-label="Omat asetukset"
             >
-              <Zap size={18} />
+              ✳
             </a>
           </div>
         </header>
@@ -331,8 +339,8 @@ export default function App() {
           <AppErrorBoundary key={path}>{content}</AppErrorBoundary>
           <footer className="page-footer">
             <span>
-              KIPINÄ <span className="footer-dot">✳</span> Pieni hetki,
-              vahvempi osaaminen.
+              SOFTWIRED <span className="footer-dot">✳</span> Ymmärrä. Muista.
+              Sovella.
             </span>
             <a href="#/settings">Tietosuoja ja lähteet</a>
           </footer>
@@ -364,10 +372,8 @@ export default function App() {
         aria-labelledby="onboarding-title"
       >
         <div className="onboarding-content">
-          <span className="onboarding-mark">
-            <Zap size={36} fill="currentColor" />
-          </span>
-          <p className="eyebrow">TERVETULOA KIPINÄÄN</p>
+          <span className="onboarding-mark">✳</span>
+          <p className="eyebrow">TERVETULOA SOFTWIREDIIN</p>
           <h2 id="onboarding-title">
             Oppiminen alkaa
             <br />
