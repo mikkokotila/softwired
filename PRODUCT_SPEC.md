@@ -8,8 +8,8 @@ Build a production-quality, mobile-first, offline-capable Finnish study web app/
 
 ## Local paths and access
 
-Project directory: /Users/mikkokotila/dev/softwired (new empty git repo).
-Authoritative source scan: /Users/mikkokotila/Downloads/Terveystiedon Koe1.pdf (65 scanned pages, Hipppokrates / Yläkoulun terveystieto 8). YOU MAY inspect/derive from it. DO NOT commit/copy original full PDF into GitHub repo; keep private, generate optional .local page snapshots and .gitignore. The student-facing course must contain self-sufficient lessons with actual teaching, not only quizzes; original source is optional contextual reference.
+Project directory: ~/dev/softwired (new empty git repo).
+Authoritative source scan: the author-owned local source scan (not included) (65 scanned pages, Hipppokrates / Yläkoulun terveystieto 8). YOU MAY inspect/derive from it. DO NOT commit/copy original full PDF into GitHub repo; keep private, generate optional .local page snapshots and .gitignore. The student-facing course must contain self-sufficient lessons with actual teaching, not only quizzes; original source is optional contextual reference.
 Important: PDF pages are images (pdftotext likely blank); don't assume machine-extracted text is complete. Do not present incomplete extraction as verified.
 
 ## Course source map; exact PDF positions (1-based) and textbook pages

@@ -102,6 +102,10 @@ The student-facing app reads only OPENAI_API_KEY from its ignored local environm
 
 Unit tests mock the remote SDK and make no paid provider calls. Live provider verification is documented in docs/VERIFICATION.md; API connectivity is not proof of grading accuracy.
 
+## Cloudflare Pages public pilot
+
+The public production site is https://softwired.mikkokotila.com and is configured to deploy automatically from GitHub main through Cloudflare Pages Git integration. The public course runs offline and intentionally disables AI API requests until a separate age-appropriate, access-controlled tutor deployment has passed review. See [deployment instructions](docs/DEPLOYMENT.md) and [licensing notes](docs/LICENSING.md).
+
 ## Pre-test distribution
 
 The local address http://127.0.0.1:5173 works only on the host computer, not on a test user's remote device. An independently managed HTTPS pilot with a secure access token is needed for off-machine testing. Do not publicly expose Vite or the AI key.
