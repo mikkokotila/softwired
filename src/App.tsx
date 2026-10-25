@@ -381,14 +381,14 @@ export default function App() {
             <div>
               <BookOpen size={20} />
               <span>
-                <strong>Ymmärrä ensin.</strong>52 pientä oppituntia ja
+                <strong>Ymmärrä ensin.</strong> 52 pientä oppituntia ja
                 esimerkkiä.
               </span>
             </div>
             <div>
               <RotateCcw size={20} />
               <span>
-                <strong>Muista omilla sanoillasi.</strong>Kertaukset ja
+                <strong>Muista omilla sanoillasi.</strong> Kertaukset ja
                 soveltavat koetehtävät.
               </span>
             </div>

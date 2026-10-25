@@ -235,7 +235,7 @@ test("backup import validates before replacing local state", async ({
   );
   await expect(
     page.getByRole("checkbox", {
-      name: "Hyväksyn, että AI-vastaukseni lähetetään Metan Contributor-palveluun ja niitä voidaan käyttää mallien kouluttamiseen.",
+      name: "Sallin omien AI-pyyntöjeni lähettämisen OpenAI API -palveluun.",
       exact: false,
     }),
   ).not.toBeChecked();

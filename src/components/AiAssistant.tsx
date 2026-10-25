@@ -165,7 +165,7 @@ export function AiAssistant({
         <div>
           <h2>Oivallus alkaa kysymyksestä.</h2>
           <span className="small muted">
-            {status?.model ?? "muse-spark-1.3-contributor"} · {label}
+            {status?.model ?? "gpt-6-astra"} · {label}
           </span>
         </div>
         <button
@@ -185,7 +185,7 @@ export function AiAssistant({
       {statusError && <Notice kind="error">{statusError}</Notice>}
       {status && !status.configured && (
         <Notice>
-          AI odottaa avainta. Ylläpitäjä lisää <code>MUSE_API_KEY</code>
+          AI odottaa avainta. Ylläpitäjä lisää <code>OPENAI_API_KEY</code>
           -avaimen palvelimen .env-tiedostoon. Opiskelu ja omat arviot toimivat
           sillä välin. <a href="#/settings">Yhteysasetukset →</a>
         </Notice>
@@ -202,14 +202,15 @@ export function AiAssistant({
             <strong>Sinä päätät, mitä lähetät.</strong>
             <p>
               AI-pyynnössä kysymyksesi, vastauksesi ja valitun oppitunnin
-              sisältö lähetetään Metan Muse Spark Contributor -mallille.
-              Keskustelutilassa lähetetään myös viimeiset viestit. Meta voi
-              käyttää lähettämiäsi kysymyksiä ja vastauksia mallien
-              kehittämiseen ja kouluttamiseen, vaikka käytämme store: false
-              -asetusta. Älä lähetä nimiä, omia tai toisten terveys- tai
-              perhetietoja. Käytä kuvitteellisia tilanteita ja keskustele AI:n
-              käytöstä huoltajan kanssa. API on maksullinen; suostumus ei vielä
-              lähetä pyyntöä.
+              sisältö lähetetään OpenAI API -palveluun. Keskustelutilassa
+              lähetetään myös viimeiset viestit. API-syötteitä ei käytetä
+              mallien kouluttamiseen oletusarvoisesti, mutta niitä voi säilyä
+              väärinkäytön valvontaan liittyvissä lokeissa enintään 30 päivää,
+              ellei pidempi säilytys ole tarpeen lain tai turvallisuuden vuoksi.
+              Älä lähetä nimiä, omia tai muiden terveystietoja, osoitteita tai
+              yksityisiä perheasioita. Käytä kuvitteellisia tilanteita.
+              Keskustele AI:n käytöstä huoltajan kanssa. API on maksullinen;
+              suostumus ei vielä lähetä pyyntöä.
             </p>
             <button
               className="button secondary small-button"

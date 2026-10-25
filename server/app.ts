@@ -7,10 +7,11 @@ import path from "node:path";
 import { z } from "zod";
 import {
   tutorRequestSchema,
-  createMuseTutor,
+  createOpenAITutor,
   type TutorRequest,
   type TutorReply,
   tutorReplySchema,
+  TutorSafetyError,
 } from "./tutor";
 import { lessonById } from "../src/content";
 export interface AppConfig {
@@ -98,6 +99,9 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
   });
   app.use(express.json({ limit: "24kb", strict: true }));
   app.use(cookieParser(secret));
+  // A successful provider response verifies the configured model for this process.
+  // Never confuse "key present" with "connection verified".
+  let verifiedOnce = false;
   const authorized = (req: express.Request) =>
     !config.accessToken ||
     req.signedCookies.kipina_access ===
@@ -111,16 +115,18 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
     res.json({
       configured: !!config.apiKey,
       model: config.model,
-      provider: "Meta Model API",
-      contributorMode: config.model.endsWith("-contributor"),
-      verified: false,
+      provider: "OpenAI API",
+      contributorMode: false,
+      verified: verifiedOnce,
       accessRequired: !authorized(req),
       csrf,
-      message: config.apiKey
-        ? "Avain määritetty · yhteys varmistuu ensimmäisellä pyynnöllä"
-        : "AI odottaa avainta",
+      message: !config.apiKey
+        ? "AI odottaa avainta"
+        : verifiedOnce
+          ? "AI-yhteys vahvistettu onnistuneella pyynnöllä"
+          : "Avain määritetty · yhteys varmistuu ensimmäisellä pyynnöllä",
       paidNotice:
-        "Meta Model API on maksullinen. Contributor-tilassa Meta voi käyttää lähetettyjä sisältöjä tekoälymallien kouluttamiseen. Hinta riippuu tokeneista.",
+        "OpenAI API on maksullinen. API-syötteitä ei käytetä mallien kouluttamiseen oletusarvoisesti. Sisältöä voi säilyä väärinkäytön valvontalokeissa. Hinta riippuu tokeneista.",
     });
   });
   const csrfCheck: express.RequestHandler = (req, res, next) => {
@@ -176,7 +182,7 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
   const provider =
     injectedProvider ??
     (config.apiKey
-      ? createMuseTutor(config.apiKey, config.model, config.editorialNote)
+      ? createOpenAITutor(config.apiKey, config.model, config.editorialNote)
       : undefined);
   let day = new Date().toISOString().slice(0, 10);
   let calls = 0;
@@ -199,7 +205,7 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
     if (!provider) {
       res.status(503).json({
         error:
-          "AI odottaa avainta. Lisää MUSE_API_KEY palvelimen .env-tiedostoon ja käynnistä palvelin uudelleen.",
+          "AI odottaa avainta. Lisää OPENAI_API_KEY palvelimen .env-tiedostoon ja käynnistä palvelin uudelleen.",
       });
       return;
     }
@@ -246,6 +252,7 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
           : output.score !== null
       )
         throw new Error("AI_INVALID_SCORE");
+      verifiedOnce = true;
       const lesson = lessonById[parsed.data.lessonId];
       if (!res.destroyed)
         res.json({
@@ -264,7 +271,13 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
           ? Number(error.status)
           : 0;
       const message = error instanceof Error ? error.message : "";
-      if (controller.signal.aborted || message === "AI_TIMEOUT")
+      if (error instanceof TutorSafetyError)
+        res.status(422).json({
+          error: error.higherRisk
+            ? "Tämä voi olla vakava tai henkilökohtainen asia. Kerro heti turvalliselle aikuiselle tai kouluterveydenhoitajalle. Jos olet välittömässä vaarassa, soita 112. Voit jatkaa oppituntia ilman AI:ta."
+            : "AI ei voi käsitellä tätä viestiä turvallisesti. Jatka oppitunnin harjoituksia ilman AI:ta tai käytä kuvitteellista, henkilökohtaisia tietoja välttävää esimerkkiä.",
+        });
+      else if (controller.signal.aborted || message === "AI_TIMEOUT")
         res.status(504).json({
           error:
             "AI-pyyntö aikakatkaistiin. Yritä lyhyemmällä viestillä tai myöhemmin.",
@@ -272,16 +285,16 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
       else if (status === 401 || status === 403)
         res.status(502).json({
           error:
-            "Meta Model API ei hyväksynyt avainta tai mallin käyttöoikeutta. Palvelimen ylläpitäjän on tarkistettava asetukset.",
+            "OpenAI API ei hyväksynyt avainta tai mallin käyttöoikeutta. Palvelimen ylläpitäjän on tarkistettava asetukset.",
         });
       else if (status === 404)
         res.status(502).json({
-          error: `Malli ${config.model} ei ole käytettävissä tällä tilillä. Ylläpitäjä voi valita mallin MUSE_MODEL-asetuksella. Mallia ei vaihdeta automaattisesti.`,
+          error: `Malli ${config.model} ei ole käytettävissä tällä tilillä. Ylläpitäjä voi valita mallin OPENAI_MODEL-asetuksella. Mallia ei vaihdeta automaattisesti.`,
         });
       else if (status === 429)
         res.status(429).json({
           error:
-            "Meta Model API -tilin raja tai saldo esti pyynnön. Tarkista laskutus ja rajat.",
+            "OpenAI API -tilin raja tai saldo esti pyynnön. Tarkista laskutus ja rajat.",
         });
       else
         res.status(502).json({

@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { lessons } from "../content";
 import type { Objective } from "./learning";
-export const AI_CONSENT_PROVIDER = "meta-muse-spark-contributor-v1" as const;
+// Migrating from the former provider must preserve progress but revoke consent.
+export const AI_CONSENT_PROVIDER = "openai-u18-study-v1" as const;
+export const LEGACY_AI_CONSENT_PROVIDER =
+  "meta-muse-spark-contributor-v1" as const;
 const objectiveSchema = z.object({
   seenAt: z.number().nonnegative().optional(),
   completedAt: z.number().nonnegative().optional(),
@@ -68,7 +71,12 @@ export const stateSchema = z
     version: z.literal(2),
     onboarded: z.boolean(),
     consent: z.boolean(),
-    consentProvider: z.literal(AI_CONSENT_PROVIDER).optional(),
+    consentProvider: z
+      .union([
+        z.literal(AI_CONSENT_PROVIDER),
+        z.literal(LEGACY_AI_CONSENT_PROVIDER),
+      ])
+      .optional(),
     goalMinutes: z.literal(20),
     examDate: z.string().max(10),
     objectives: z.record(z.string(), objectiveSchema),
@@ -132,7 +140,7 @@ export const freshState = (): StudyState => ({
 export function migrate(raw: unknown): StudyState {
   const parsed = stateSchema.safeParse(raw);
   if (parsed.success) {
-    // An earlier OpenAI consent must never authorize Meta Contributor training.
+    // Consent to an earlier provider must never authorize sending data to a new provider.
     if (parsed.data.consentProvider !== AI_CONSENT_PROVIDER) {
       return { ...parsed.data, consent: false, consentProvider: undefined };
     }

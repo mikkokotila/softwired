@@ -79,15 +79,75 @@ it("reports malformed backup JSON in Finnish without echoing private file conten
   );
 });
 
-it("requires fresh permission after switching AI provider to Meta Contributor", () => {
+it("keeps prior learning but revokes consent when switching AI providers", () => {
   const previous = { ...freshState(), consent: true };
   const state = migrate(previous);
   expect(state.consent).toBe(false);
   expect(state.consentProvider).toBeUndefined();
-  const optedIn = migrate({
+  const old = migrate({
     ...freshState(),
     consent: true,
     consentProvider: "meta-muse-spark-contributor-v1",
   });
+  expect(old.consent).toBe(false);
+  const optedIn = migrate({
+    ...freshState(),
+    consent: true,
+    consentProvider: "openai-u18-study-v1",
+  });
   expect(optedIn.consent).toBe(true);
+});
+
+it("preserves completed lessons, drafts and exams while revoking old Muse consent", () => {
+  const legacy = freshState();
+  legacy.onboarded = true;
+  legacy.consent = true;
+  legacy.consentProvider = "meta-muse-spark-contributor-v1";
+  legacy.objectives["1.1-3"] = {
+    seenAt: 500,
+    completedAt: 700,
+    evidence: [
+      {
+        questionId: "1.1-3-q1",
+        correct: true,
+        independent: true,
+        at: 600,
+        confidence: "high",
+      },
+    ],
+    mistakes: 0,
+    dueAt: 1000,
+    intervalDays: 1,
+    reviews: 0,
+  };
+  legacy.drafts["1.1-3"] = {
+    stage: 5,
+    recall: "Itsetunto kuvaa omaa arvoa.",
+    written: "Minäkuva kertoo käsityksestä itsestä.",
+    choiceIndex: 1,
+    answers: { "1.1-3-q1": 1 },
+    recallSubmitted: true,
+    writtenSubmitted: true,
+    rubricViewed: true,
+    helpUsed: false,
+  };
+  legacy.exams = [
+    {
+      id: "pilot-exam",
+      minutes: 15,
+      seed: 2,
+      startedAt: 2000,
+      finishedAt: 2100,
+      answers: { exam1: "Koevastaus" },
+      selfScores: {},
+      aiScores: {},
+    },
+  ];
+  const updated = migrate(legacy);
+  expect(updated.consent).toBe(false);
+  expect(updated.consentProvider).toBeUndefined();
+  expect(updated.onboarded).toBe(true);
+  expect(updated.objectives).toEqual(legacy.objectives);
+  expect(updated.drafts).toEqual(legacy.drafts);
+  expect(updated.exams).toEqual(legacy.exams);
 });

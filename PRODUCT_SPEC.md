@@ -1,3 +1,5 @@
+Historical initial implementation brief: its references to Muse Spark are superseded by the pre-test QC. See README.md and docs/PRETEST_QC.md for current provider decisions and restrictions.
+
 # SOFTWIRED — FULL PRODUCT BUILD SPEC (2026-10-25)
 
 ## Goal

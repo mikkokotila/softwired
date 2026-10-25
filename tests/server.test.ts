@@ -5,9 +5,10 @@ import {
   buildInstructions,
   trustedContext,
   tutorRequestSchema,
+  TutorSafetyError,
 } from "../server/tutor";
 const config: AppConfig = {
-  model: "muse-spark-1.3-contributor",
+  model: "gpt-6-astra",
   appOrigin: "http://127.0.0.1:5173",
   cookieSecret: "unit-test-cookie-signing-secret",
 };
@@ -85,7 +86,7 @@ describe("secure API boundary", () => {
       .set("X-CSRF-Token", c.csrf)
       .send(payload);
     expect(r.status).toBe(200);
-    expect(r.body.model).toBe("muse-spark-1.3-contributor");
+    expect(r.body.model).toBe("gpt-6-astra");
     expect(r.body.source.book).toEqual([8, 11]);
     expect(provider).toHaveBeenCalledTimes(1);
     expect(r.text).not.toContain("unit-test-cookie");
@@ -140,7 +141,7 @@ describe("secure API boundary", () => {
       .set("X-CSRF-Token", c.csrf)
       .send(payload);
     expect(r.status).toBe(502);
-    expect(r.body.error).toContain("muse-spark-1.3-contributor");
+    expect(r.body.error).toContain("gpt-6-astra");
     expect(r.text).not.toContain("secret upstream");
   });
   it("bounds provider costs with per-process daily cap and per-IP request rate", async () => {
@@ -255,4 +256,20 @@ it("treats an empty optional SESSION_SECRET as unset, as in .env.example", async
     (await c.agent.post("/api/tutor").set("X-CSRF-Token", c.csrf).send(payload))
       .status,
   ).toBe(200);
+});
+
+it("returns a safe message for flagged student content without exposing private input", async () => {
+  const c = await client(config, async () => {
+    throw new TutorSafetyError(true);
+  });
+  const r = await c.agent
+    .post("/api/tutor")
+    .set("X-CSRF-Token", c.csrf)
+    .send({
+      ...payload,
+      message: "I need urgent help and do not want details repeated.",
+    });
+  expect(r.status).toBe(422);
+  expect(r.body.error).toContain("turvalliselle aikuiselle");
+  expect(r.text).not.toContain("do not want details");
 });

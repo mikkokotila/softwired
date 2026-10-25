@@ -14,6 +14,7 @@ import type { Lesson } from "../content/types";
 import { useStudy } from "../lib/store";
 import { addActivity, type LessonDraft } from "../lib/storage";
 import { emptyObjective, mastery, recordChoice } from "../lib/learning";
+import { recordIndependentTransfer } from "../lib/ai-evidence";
 import { finishFocusItem } from "../lib/focus";
 import { hasAttempt, isUnsureAnswer } from "../lib/answer-flow";
 import { navigate } from "../lib/hooks";
@@ -429,25 +430,15 @@ export function LessonPlayer({
                     initialMode="grade"
                     onHelp={() => update({ helpUsed: true })}
                     onGraded={(response) => {
-                      if (
-                        response.score !== null &&
-                        !draft.rubricViewed &&
-                        !draft.helpUsed
-                      )
-                        setState((s) => ({
-                          ...s,
-                          objectives: {
-                            ...s.objectives,
-                            [lesson.id]: {
-                              ...(s.objectives[lesson.id] ?? emptyObjective()),
-                              transfer: {
-                                at: Date.now(),
-                                score: response.score!,
-                                method: "ai",
-                              },
-                            },
-                          },
-                        }));
+                      if (response.score !== null)
+                        setState((current) =>
+                          recordIndependentTransfer(
+                            current,
+                            lesson.id,
+                            draft.written,
+                            response.score!,
+                          ),
+                        );
                     }}
                   />
                 )}

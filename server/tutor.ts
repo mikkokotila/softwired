@@ -45,6 +45,12 @@ export const tutorReplySchema = z
   })
   .strict();
 export type TutorReply = z.infer<typeof tutorReplySchema>;
+export class TutorSafetyError extends Error {
+  constructor(public readonly higherRisk: boolean) {
+    super("AI_SAFETY_BLOCKED");
+  }
+}
+
 export const responseFormat = {
   type: "json_schema" as const,
   name: "kipina_tutor",
@@ -99,23 +105,47 @@ TOIMITUKSELLINEN LISÄHUOMAUTUS: ${editorialNote.slice(0, 2000)}
 LUOTETTU OPETUSAINEISTO:
 ${JSON.stringify(trustedContext(request))}`;
 }
-export function createMuseTutor(
+export function createOpenAITutor(
   apiKey: string,
   model: string,
   editorialNote = "",
 ) {
-  // Muse Spark exposes the OpenAI-compatible Responses API, but calls Meta, not OpenAI.
-  // Never put the key or this client in the browser bundle.
+  // OpenAI Responses API; never embed credentials in the student-facing bundle.
   const client = new OpenAI({
     apiKey,
-    baseURL: "https://api.meta.ai/v1",
     timeout: 45_000,
     maxRetries: 0,
   });
+  async function reviewSafety(text: string, signal: AbortSignal) {
+    // No high-risk teen content goes straight to a generative completion.
+    // If moderation fails, the tutoring request fails closed.
+    const check = await client.moderations.create(
+      { model: "omni-moderation-latest", input: text },
+      { signal },
+    );
+    const result = check.results[0];
+    if (!result) throw new Error("AI_MODERATION_UNAVAILABLE");
+    if (result.flagged) {
+      const higherRisk =
+        result.categories["self-harm"] ||
+        result.categories["self-harm/intent"] ||
+        result.categories["self-harm/instructions"];
+      throw new TutorSafetyError(Boolean(higherRisk));
+    }
+  }
   return async (
     request: TutorRequest,
     signal: AbortSignal,
   ): Promise<TutorReply> => {
+    await reviewSafety(
+      [
+        request.message,
+        ...request.history
+          .filter((item) => item.role === "user")
+          .map((item) => item.content),
+      ].join("\n"),
+      signal,
+    );
     const response = await client.responses.create(
       {
         model,
@@ -142,6 +172,15 @@ export function createMuseTutor(
       throw new Error("AI_INVALID_SCORE");
     if (request.mode !== "grade" && reply.score !== null)
       throw new Error("AI_UNEXPECTED_SCORE");
+    await reviewSafety(
+      [
+        reply.reply,
+        reply.nextQuestion,
+        ...reply.strengths,
+        ...reply.improvements,
+      ].join("\n"),
+      signal,
+    );
     return reply;
   };
 }

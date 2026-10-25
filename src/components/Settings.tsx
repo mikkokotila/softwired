@@ -211,10 +211,9 @@ export function Settings({
             </strong>
           </div>
           <p className="small">
-            Malli:{" "}
-            <strong>{status?.model ?? "muse-spark-1.3-contributor"}</strong>.
-            Avaimen määrittäminen ei vielä varmista mallin käyttöoikeutta.
-            Yhteys varmistuu vasta onnistuneella pyynnöllä. Mallia ei vaihdeta
+            Malli: <strong>{status?.model ?? "gpt-6-astra"}</strong>. Avaimen
+            määrittäminen ei vielä varmista mallin käyttöoikeutta. Yhteys
+            varmistuu vasta onnistuneella pyynnöllä. Mallia ei vaihdeta
             automaattisesti.
           </p>
           {apiError && <Notice kind="error">{apiError}</Notice>}
@@ -223,19 +222,21 @@ export function Settings({
             Päivitä tila
           </button>
           <p className="small">
-            Meta Model API on maksullinen. Hinta riippuu mallista ja
-            tokenimäärästä. Kiinteää hinta-arviota ei näytetä, koska
-            ajantasaista tilikohtaista hintaa ei ole vahvistettu.
+            OpenAI API on maksullinen. Hinta riippuu mallista ja tokenimäärästä.
+            Kiinteää hinta-arviota ei näytetä, koska ajantasaista tilikohtaista
+            hintaa ei ole vahvistettu.
           </p>
           <p className="small">
             Kysymys, vastaus, oppitunnin teksti ja keskustelutilan viimeiset
-            viestit lähetetään Metalle vain pyynnöstäsi. API käyttää asetusta{" "}
-            <code>store: false</code>. Tämä ei ole lupaus kaikesta
-            palveluntarjoajan lokituksesta tai säilytysajoista.
-            Contributor-tilassa Meta voi käyttää lähetettyä opetuskontekstia ja
-            vastauksia mallien kehittämiseen ja kouluttamiseen. Älä anna omia
-            tai toisten henkilötietoja; alaikäisen on hyvä keskustella käytöstä
-            huoltajan kanssa.
+            viestit lähetetään OpenAI API -palveluun vain pyynnöstäsi. API
+            käyttää asetusta <code>store: false</code>. Tämä ei ole lupaus
+            kaikesta palveluntarjoajan lokituksesta tai säilytysajoista.
+            API-syötteitä ja vastauksia ei käytetä mallien kouluttamiseen
+            oletusarvoisesti, mutta väärinkäytön valvontalokeja voidaan
+            säilyttää oletusarvoisesti enintään 30 päivää, ellei pidempi
+            säilytys ole tarpeen lain tai turvallisuuden vuoksi. Älä lähetä omia
+            tai muiden yksityisiä henkilötietoja. Alaikäisen on hyvä keskustella
+            käytöstä huoltajan kanssa.
           </p>
           <label className="toggle-row">
             <input
@@ -254,9 +255,7 @@ export function Settings({
               }
             />
             <span>
-              Hyväksyn, että AI-vastaukseni lähetetään Metan
-              Contributor-palveluun ja niitä voidaan käyttää mallien
-              kouluttamiseen.
+              Sallin omien AI-pyyntöjeni lähettämisen OpenAI API -palveluun.
               <small>
                 Älä lähetä omia tai toisten arkaluonteisia tietoja. Suostumuksen
                 muuttaminen ei lähetä API-pyyntöä.
@@ -300,11 +299,12 @@ export function Settings({
           <details className="setup-details">
             <summary>Ylläpitäjän käyttöönotto</summary>
             <p>
-              Lisää Meta Model API -avain vain palvelimen .env-tiedostoon:{" "}
-              <code>MUSE_API_KEY</code>. Oletusmalli on{" "}
-              <code>muse-spark-1.3-contributor</code>; mallin voi määrittää{" "}
-              <code>MUSE_MODEL</code>-asetuksella. Käynnistä palvelin uudelleen.
-              Avainta ei koskaan kirjoiteta selaimeen tai VITE_-muuttujaan.
+              Lisää OpenAI API -avain vain palvelimen .env-tiedostoon:{" "}
+              <code>OPENAI_API_KEY</code>. Oletusmalli on{" "}
+              <code>gpt-6-astra</code>; mallin voi määrittää{" "}
+              <code>OPENAI_MODEL</code>-asetuksella. Käynnistä palvelin
+              uudelleen. Avainta ei koskaan kirjoiteta selaimeen tai
+              VITE_-muuttujaan.
             </p>
           </details>
         </section>

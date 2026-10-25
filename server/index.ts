@@ -3,7 +3,7 @@ import { createApp } from "./app";
 const host = process.env.HOST ?? "127.0.0.1";
 const port = Number(process.env.PORT ?? 3001);
 const production = process.env.NODE_ENV === "production";
-const model = process.env.MUSE_MODEL?.trim() || "muse-spark-1.3-contributor";
+const model = process.env.OPENAI_MODEL?.trim() || "gpt-6-astra";
 const dailyLimit = Number(process.env.AI_DAILY_LIMIT ?? 100);
 if (
   !Number.isInteger(port) ||
@@ -14,7 +14,7 @@ if (
 )
   throw new Error("Invalid PORT or AI_DAILY_LIMIT.");
 const app = createApp({
-  apiKey: process.env.MUSE_API_KEY?.trim(),
+  apiKey: process.env.OPENAI_API_KEY?.trim(),
   model,
   appOrigin:
     process.env.APP_ORIGIN ??
@@ -28,7 +28,7 @@ const app = createApp({
 });
 const server = app.listen(port, host, () =>
   console.log(
-    `Kipinä API ${host}:${port} · ${model} · ${process.env.MUSE_API_KEY ? "avain määritetty, ei vielä varmennettu" : "AI odottaa avainta"}`,
+    `Kipinä API ${host}:${port} · ${model} · ${process.env.OPENAI_API_KEY ? "avain määritetty, ei vielä varmennettu" : "AI odottaa avainta"}`,
   ),
 );
 server.requestTimeout = 60_000;

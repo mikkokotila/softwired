@@ -41,3 +41,25 @@ Verified on the final source:
 - npm audit: found **0 vulnerabilities**.
 
 The production-browser suite uses a deliberately blank Muse API credential; this pass did not make paid provider calls. Previous separate live connection/structured-grading checks remain as recorded above. No teacher-calibrated exam performance or physical-device Safari testing is claimed.
+
+## Pre-test release review — 25 October 2026 (supersedes provider status above)
+
+**Final complete verification command:** PLAYWRIGHT_CHANNEL=chrome npm run qc:pretest. It succeeded with exit code 0.
+
+| Check                            | Verified result                                                                                                                 |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| TypeScript                       | Passed                                                                                                                          |
+| ESLint, zero warnings            | Passed                                                                                                                          |
+| Curriculum structure             | 13 sections, 52 lessons, 104 objective questions, 52 recall tasks, 52 written application tasks, 26 exam tasks                  |
+| Unit and server integration      | **73 passed in 7 test files**                                                                                                   |
+| Production PWA build             | Passed; 19 precached entries, approximately 750 KiB                                                                             |
+| Release-artifact inspection      | Passed; no Meta API endpoint, provider key or source PDF in the browser/server distribution                                     |
+| Chrome Playwright desktop/mobile | **44 passed**, including 52-lesson novice journey, accessibility, offline reload, exam workflow and newly added pre-test checks |
+| Responsive design                | Tested 320, 360, 390, 430, 768, 1024 and 1440 px                                                                                |
+| Dependency audit                 | **0 vulnerabilities reported**                                                                                                  |
+
+This pre-test review discovered a substantive underage-access issue with the formerly connected Meta Model API: the provider's 9 October 2026 terms prohibit integrated products targeted at minors. This was not caught by prior functional testing. It is now removed from the student runtime and forbidden by the release-artifact validator. The backend uses an **optional** OpenAI API path with age-aware system instructions, input/output moderation that fails closed, explicit fresh consent, and server-only credentials. Existing Muse-era consent is revoked while historical study progress is preserved.
+
+**An OpenAI API key is not configured or live-tested on the local machine.** Successful historic Muse responses noted earlier in this document are not evidence that the new provider is operational. A full AI-enabled 14-year-old pilot is therefore NOT READY. Browser regression tests deliberately use an empty API key and mocked safety refusals, not paid AI completions.
+
+See [PRETEST_QC.md](PRETEST_QC.md) for the conditional usability-pilot decision, tester procedure and remaining gates. The 44 tests are Chrome desktop/mobile emulation only; they do not replace Safari, assistive-device, real-user, teacher-calibration or qualified first-aid review.

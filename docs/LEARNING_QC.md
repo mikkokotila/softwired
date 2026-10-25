@@ -1,3 +1,5 @@
+Historical learning-flow audit: the Muse API connection mentioned below was subsequently removed from the minor-facing application. See PRETEST_QC.md.
+
 # Learning-journey quality audit — 25 October 2026
 
 ## Reported release blocker and root cause
