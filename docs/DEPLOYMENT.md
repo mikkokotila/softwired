@@ -39,3 +39,5 @@ Confirm /api/status returns JSON and configured=false, /api/tutor rejects POST w
 The public site is configured with X-Robots-Tag: noindex during the pilot. The site is publicly reachable to anyone with its URL; this is not an access-control mechanism. For a private student test, use Cloudflare Access and provide an authenticated tester identity.
 
 Production Pages project: softwired (Git-connected main). Custom domain: softwired.mikkokotila.com.
+
+Initial Cloudflare Pages production deployment verified at softwired.mikkokotila.com (HTTP 200). Automatic Git-triggered deployment is being verified separately.
