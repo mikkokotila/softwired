@@ -65,3 +65,20 @@ This pre-test review discovered a substantive underage-access issue with the for
 **An OpenAI API key is not configured or live-tested on the local machine.** Successful historic Muse responses noted earlier in this document are not evidence that the new provider is operational. A full AI-enabled 14-year-old pilot is therefore NOT READY. Browser regression tests deliberately use an empty API key and mocked safety refusals, not paid AI completions.
 
 See [PRETEST_QC.md](PRETEST_QC.md) for the conditional usability-pilot decision, tester procedure and remaining gates. The 44 tests are Chrome desktop/mobile emulation only; they do not replace Safari, assistive-device, real-user, teacher-calibration or qualified first-aid review.
+
+## Softwired Command Center visual design release — 25 October 2026
+
+Replaced the former prototype's student-visible branding with SOFTWIRED across the dashboard, learning flows, settings, document title, PWA manifest, favicon and installable icons. Existing study records retain the original internal storage key to avoid any destructive migration.
+
+Design system: semantic theme/spacing/type/motion/border/elevation tokens in src/design/tokens.css; structural variants in src/design/command-center.css; three switchable, persisted themes (Orbit, Nebula and Daybreak); Space Grotesk and DM Sans self-hosted fonts with licenses; desktop rail and responsive mobile bottom nav; visual language across all six lesson stages, revision, exam, feedback, progress and settings. Every authored hex color in the prior feature CSS has been migrated to semantic tokens.
+
+**Final isolated full verification:** E2E_PORT=4187 PLAYWRIGHT_CHANNEL=chrome npm run qc:pretest (exit 0).
+
+- Curriculum validation: 13 sections, 52 lessons, 104 choices, 52 recall + application tasks, 26 mock exam tasks.
+- Unit and API tests: **81 passed across 10 files** including theme registry, storage resilience, token integrity, AI/privacy/security and assessment logic.
+- Production frontend and backend compilation: passed. 21 static PWA precache entries.
+- Release artifact scan: passed (no Meta endpoint, credentials or source PDF).
+- Browser suite: **54 passed across desktop and mobile**, including 52-lesson novice progression, offline reload, backups, exams, three-theme switching, route/navigation, responsive widths and WCAG A/AA automation.
+- Audit: **zero dependency vulnerabilities reported**.
+
+A separate Chrome test runner was also running on the connected Mac during an early verification attempt and intermittently removed Playwright trace files. The suite now uses a unique local output directory, a dedicated test port and opt-in trace recording. Both affected flows were rerun individually before the full green regression. Test harness modifications do not change learner-facing state.
