@@ -50,7 +50,7 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
     throw new Error(
       "Public production deployment requires APP_ACCESS_TOKEN of at least 24 characters.",
     );
-  const secret = config.cookieSecret ?? randomBytes(32).toString("hex");
+  const secret = config.cookieSecret?.trim() || randomBytes(32).toString("hex");
   const cookieOptions = {
     httpOnly: true,
     secure: origin.startsWith("https:"),
@@ -127,12 +127,9 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
       typeof session !== "string" ||
       !equal(req.get("X-CSRF-Token") ?? "", session)
     ) {
-      res
-        .status(403)
-        .json({
-          error:
-            "Istunto vanheni. Päivitä AI-yhteyden tila ja yritä uudelleen.",
-        });
+      res.status(403).json({
+        error: "Istunto vanheni. Päivitä AI-yhteyden tila ja yritä uudelleen.",
+      });
       return;
     }
     next();
@@ -191,21 +188,17 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
     }
     const parsed = tutorRequestSchema.safeParse(req.body);
     if (!parsed.success) {
-      res
-        .status(400)
-        .json({
-          error:
-            "Tarkista oppitunti, suostumus ja viestin pituus. Arviointi tarvitsee oman vastauksen (vähintään 20 merkkiä).",
-        });
+      res.status(400).json({
+        error:
+          "Tarkista oppitunti, suostumus ja viestin pituus. Arviointi tarvitsee oman vastauksen (vähintään 20 merkkiä).",
+      });
       return;
     }
     if (!provider) {
-      res
-        .status(503)
-        .json({
-          error:
-            "AI odottaa avainta. Lisää OPENAI_API_KEY palvelimen .env-tiedostoon ja käynnistä palvelin uudelleen.",
-        });
+      res.status(503).json({
+        error:
+          "AI odottaa avainta. Lisää OPENAI_API_KEY palvelimen .env-tiedostoon ja käynnistä palvelin uudelleen.",
+      });
       return;
     }
     const today = new Date().toISOString().slice(0, 10);
@@ -214,12 +207,10 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
       calls = 0;
     }
     if (calls >= (config.dailyLimit ?? 100)) {
-      res
-        .status(429)
-        .json({
-          error:
-            "Palvelimen päivän AI-pyyntöraja täyttyi. Kokeile huomenna tai jatka offline-tehtävillä.",
-        });
+      res.status(429).json({
+        error:
+          "Palvelimen päivän AI-pyyntöraja täyttyi. Kokeile huomenna tai jatka offline-tehtävillä.",
+      });
       return;
     }
     if (concurrent >= 2) {
@@ -272,39 +263,29 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
           : 0;
       const message = error instanceof Error ? error.message : "";
       if (controller.signal.aborted || message === "AI_TIMEOUT")
-        res
-          .status(504)
-          .json({
-            error:
-              "AI-pyyntö aikakatkaistiin. Yritä lyhyemmällä viestillä tai myöhemmin.",
-          });
+        res.status(504).json({
+          error:
+            "AI-pyyntö aikakatkaistiin. Yritä lyhyemmällä viestillä tai myöhemmin.",
+        });
       else if (status === 401 || status === 403)
-        res
-          .status(502)
-          .json({
-            error:
-              "OpenAI ei hyväksynyt avainta tai mallin käyttöoikeutta. Palvelimen ylläpitäjän on tarkistettava asetukset.",
-          });
+        res.status(502).json({
+          error:
+            "OpenAI ei hyväksynyt avainta tai mallin käyttöoikeutta. Palvelimen ylläpitäjän on tarkistettava asetukset.",
+        });
       else if (status === 404)
-        res
-          .status(502)
-          .json({
-            error: `Malli ${config.model} ei ole käytettävissä tällä tilillä. Ylläpitäjä voi valita mallin OPENAI_MODEL-asetuksella. Mallia ei vaihdeta automaattisesti.`,
-          });
+        res.status(502).json({
+          error: `Malli ${config.model} ei ole käytettävissä tällä tilillä. Ylläpitäjä voi valita mallin OPENAI_MODEL-asetuksella. Mallia ei vaihdeta automaattisesti.`,
+        });
       else if (status === 429)
-        res
-          .status(429)
-          .json({
-            error:
-              "OpenAI-tilin raja tai saldo esti pyynnön. Tarkista laskutus ja rajat.",
-          });
+        res.status(429).json({
+          error:
+            "OpenAI-tilin raja tai saldo esti pyynnön. Tarkista laskutus ja rajat.",
+        });
       else
-        res
-          .status(502)
-          .json({
-            error:
-              "AI ei palauttanut kelvollista vastausta. Vastausta ei pisteytetty; yritä uudelleen.",
-          });
+        res.status(502).json({
+          error:
+            "AI ei palauttanut kelvollista vastausta. Vastausta ei pisteytetty; yritä uudelleen.",
+        });
     } finally {
       if (timeout) clearTimeout(timeout);
       concurrent--;
@@ -340,14 +321,12 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
     res,
     _next,
   ) => {
-    res
-      .status(err.type === "entity.too.large" ? 413 : 400)
-      .json({
-        error:
-          err.type === "entity.too.large"
-            ? "Pyyntö on liian suuri."
-            : "Pyyntö ei ole kelvollista JSON-muotoa.",
-      });
+    res.status(err.type === "entity.too.large" ? 413 : 400).json({
+      error:
+        err.type === "entity.too.large"
+          ? "Pyyntö on liian suuri."
+          : "Pyyntö ei ole kelvollista JSON-muotoa.",
+    });
   };
   app.use(handleError);
   return app;

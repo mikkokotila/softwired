@@ -1,4 +1,6 @@
 import { defineConfig } from "@playwright/test";
+const testPort = Number(process.env.E2E_PORT ?? 4175);
+const testOrigin = `http://127.0.0.1:${testPort}`;
 export default defineConfig({
   testDir: "./e2e",
   timeout: 30_000,
@@ -7,7 +9,7 @@ export default defineConfig({
   retries: 0,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL: "http://127.0.0.1:3001",
+    baseURL: testOrigin,
     channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
@@ -25,14 +27,14 @@ export default defineConfig({
   ],
   webServer: {
     command: "npm run serve",
-    url: "http://127.0.0.1:3001/api/status",
+    url: `${testOrigin}/api/status`,
     reuseExistingServer: false,
     timeout: 30_000,
     env: {
       OPENAI_API_KEY: "",
-      APP_ORIGIN: "http://127.0.0.1:3001",
+      APP_ORIGIN: testOrigin,
       HOST: "127.0.0.1",
-      PORT: "3001",
+      PORT: String(testPort),
     },
   },
 });

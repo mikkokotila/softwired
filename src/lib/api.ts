@@ -12,6 +12,16 @@ export interface AIResponse extends TutorReply {
   model: string;
   source: { title: string; book: number[]; pdf: number[] };
 }
+async function fetchAPI(path: string, options: RequestInit): Promise<Response> {
+  try {
+    return await fetch(path, options);
+  } catch (error) {
+    if (options.signal?.aborted) throw error;
+    throw new Error(
+      "AI-palvelimeen ei saatu yhteyttä. Tarkista verkkoyhteys ja palvelimen käynnistys.",
+    );
+  }
+}
 async function jsonResponse<T>(res: Response): Promise<T> {
   const value = await res.json().catch(() => {
     throw new Error(
@@ -26,7 +36,7 @@ async function jsonResponse<T>(res: Response): Promise<T> {
 }
 export async function getAIStatus(signal?: AbortSignal) {
   return jsonResponse<AIStatus>(
-    await fetch("/api/status", {
+    await fetchAPI("/api/status", {
       cache: "no-store",
       credentials: "same-origin",
       signal: signal ?? AbortSignal.timeout(7000),
@@ -35,7 +45,7 @@ export async function getAIStatus(signal?: AbortSignal) {
 }
 export async function unlockAI(token: string, csrf: string) {
   return jsonResponse<{ ok: boolean }>(
-    await fetch("/api/unlock", {
+    await fetchAPI("/api/unlock", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
       credentials: "same-origin",
@@ -57,7 +67,7 @@ export async function askTutor(
   signal: AbortSignal,
 ) {
   return jsonResponse<AIResponse>(
-    await fetch("/api/tutor", {
+    await fetchAPI("/api/tutor", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
       credentials: "same-origin",

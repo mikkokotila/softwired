@@ -72,3 +72,9 @@ it("reports unavailable or quota-exceeded storage without throwing", () => {
     ),
   ).toContain("Varmuuskopio".toLowerCase());
 });
+
+it("reports malformed backup JSON in Finnish without echoing private file contents", () => {
+  expect(() => parseBackup("PRIVATE_INVALID_FILE")).toThrow(
+    "Varmuuskopion muoto ei kelpaa",
+  );
+});

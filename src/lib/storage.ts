@@ -181,9 +181,15 @@ export function persist(
 export function parseBackup(text: string): StudyState {
   if (text.length > 2_000_000)
     throw new Error("Varmuuskopio on liian suuri (enintään 2 Mt).");
-  const imported = migrate(JSON.parse(text));
-  // Consent is device/session-specific and must be requested again on a new import.
-  return { ...imported, consent: false };
+  try {
+    const imported = migrate(JSON.parse(text));
+    // Consent is device-specific and must be requested again on import.
+    return { ...imported, consent: false };
+  } catch {
+    throw new Error(
+      "Varmuuskopion muoto ei kelpaa. Valitse Kipinästä viety JSON-tiedosto. Nykyisiä tietoja ei muutettu.",
+    );
+  }
 }
 export function localDay(now = new Date()) {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;

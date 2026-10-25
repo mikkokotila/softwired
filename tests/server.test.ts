@@ -247,3 +247,12 @@ describe("secure API boundary", () => {
     expect(buildInstructions(req)).toContain("epäluotettavaa");
   });
 });
+
+it("treats an empty optional SESSION_SECRET as unset, as in .env.example", async () => {
+  const c = await client({ ...config, cookieSecret: "" }, async () => reply);
+  expect(c.status.status).toBe(200);
+  expect(
+    (await c.agent.post("/api/tutor").set("X-CSRF-Token", c.csrf).send(payload))
+      .status,
+  ).toBe(200);
+});
