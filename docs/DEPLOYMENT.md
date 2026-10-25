@@ -37,3 +37,5 @@ Run npx wrangler pages dev ./dist --port 8799 to test the Pages Functions locall
 Confirm /api/status returns JSON and configured=false, /api/tutor rejects POST with 503, the PWA manifest exists, and offline lesson pages load after a cached first visit.
 
 The public site is configured with X-Robots-Tag: noindex during the pilot. The site is publicly reachable to anyone with its URL; this is not an access-control mechanism. For a private student test, use Cloudflare Access and provide an authenticated tester identity.
+
+Production Pages project: softwired (Git-connected main). Custom domain: softwired.mikkokotila.com.
