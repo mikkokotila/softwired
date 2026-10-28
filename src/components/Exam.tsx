@@ -14,6 +14,7 @@ import { useStudy } from "../lib/store";
 import type { ExamSession } from "../lib/storage";
 import { AiAssistant } from "./AiAssistant";
 import { SelfRubric } from "./Assessment";
+import { WrittenFeedback } from "./WrittenFeedback";
 import { ButtonLink, Notice, PageHeading, ProgressBar } from "./ui";
 export function Exam() {
   const { state, setState } = useStudy();
@@ -517,6 +518,11 @@ function ExamResult({
               </div>
             ) : (
               <>
+                <WrittenFeedback
+                  task={q.item.written}
+                  answer={exam.answers[q.id] ?? ""}
+                  announce={false}
+                />
                 <div className="assessment-options">
                   <button
                     className="button secondary small-button"

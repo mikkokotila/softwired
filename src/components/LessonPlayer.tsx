@@ -20,6 +20,7 @@ import { hasAttempt, isUnsureAnswer } from "../lib/answer-flow";
 import { navigate } from "../lib/hooks";
 import { AiAssistant } from "./AiAssistant";
 import { MultipleChoice, SelfRubric } from "./Assessment";
+import { WrittenFeedback } from "./WrittenFeedback";
 import { ButtonLink, Notice, ProgressBar, StatusPill } from "./ui";
 const stages = [
   "Tilanne",
@@ -265,7 +266,7 @@ export function LessonPlayer({
                     osoitus hallinnasta.
                   </Notice>
                 )}
-                <SelfRubric task={lesson.recall} />
+                <SelfRubric task={lesson.recall} answer={draft.recall} />
                 <Notice>
                   Tämä saman päivän muistelu harjoittaa osaamista. Hallinta
                   varmistetaan myöhemmin viivästetyllä kertauksella tai
@@ -392,6 +393,10 @@ export function LessonPlayer({
                     Tästä ei kirjata onnistunutta koesuoritusta.
                   </Notice>
                 )}
+                <WrittenFeedback
+                  answer={draft.written}
+                  task={lesson.application}
+                />
                 <div className="assessment-options">
                   {!draft.rubricViewed && (
                     <button

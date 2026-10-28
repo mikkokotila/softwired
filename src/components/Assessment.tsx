@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import { Check, CheckCircle2, XCircle } from "lucide-react";
 import type { Question, WrittenTask } from "../content/types";
 import type { Confidence } from "../lib/learning";
+import { WrittenFeedback } from "./WrittenFeedback";
 export function MultipleChoice({
   question,
   saved,
@@ -131,10 +132,12 @@ export function MultipleChoice({
 }
 export function SelfRubric({
   task,
+  answer,
   onScore,
   label = "Oma arvio · ei AI-arvio",
 }: {
   task: WrittenTask;
+  answer?: string;
   onScore?: (score: number) => void;
   label?: string;
 }) {
@@ -142,6 +145,7 @@ export function SelfRubric({
   const [saved, setSaved] = useState(false);
   return (
     <div className="self-rubric">
+      {answer !== undefined && <WrittenFeedback answer={answer} task={task} />}
       <span className="eyebrow">{label}</span>
       <h3>Vertaa omaa vastaustasi.</h3>
       <p className="model-answer">{task.model}</p>
@@ -163,6 +167,33 @@ export function SelfRubric({
           </label>
         ))}
       </fieldset>
+      <div className="self-review-result" role="status">
+        {checks.some(Boolean) ? (
+          <>
+            <strong>
+              Oman tarkistuksesi perusteella mukana:{" "}
+              {checks.filter(Boolean).length} / {task.rubric.length} kohtaa.
+            </strong>
+            {checks.some((checked) => !checked) ? (
+              <p>
+                Vahvista seuraavaksi:{" "}
+                {task.rubric[checks.findIndex((checked) => !checked)]}. Tämä on
+                oma havaintosi, ei automaattisesti todettu puute.
+              </p>
+            ) : (
+              <p>
+                Merkitsit kaikki kohdat. Tarkista vielä mallista, että
+                perustelut ovat sisällöllisesti oikein.
+              </p>
+            )}
+          </>
+        ) : (
+          <p>
+            Merkitse ne arviointikohdat, jotka löydät omasta vastauksestasi.
+            Näet, mitä kannattaa kehittää seuraavaksi.
+          </p>
+        )}
+      </div>
       {onScore && (
         <>
           <button

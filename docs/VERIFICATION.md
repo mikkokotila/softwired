@@ -117,3 +117,39 @@ GitHub-to-Pages auto-deploy remains independently unverified: Cloudflare's
 deployment history to date only shows ad_hoc/manual releases despite source
 metadata indicating GitHub. Repository authorization for Cloudflare Workers
 and Pages GitHub App must be repaired and a Git-triggered release confirmed.
+
+## 28 October 2026 — open-text feedback release
+
+Student feedback reported that recall/application answers were saved without
+any response relating to the written text. The public AI API remains disabled,
+so this release adds immediate **honestly labelled offline formative feedback**
+rather than invented AI marks.
+
+- The written feedback analyzer safely handles no-answer, unsure, short and
+  substantial inputs, shows word-root overlap with the authored model and
+  suggests a rubric-grounded next improvement. Vocabulary overlap is never
+  treated as semantic correctness.
+- A reusable feedback component and the existing SelfRubric now show responsive
+  guidance and an interactive student-marked checklist.
+- Lesson recall, locked application, delayed revision and mock-exam written
+  answers all display feedback without changing previous mastery or progress.
+  Applications still hide the model answer until students choose to compare.
+- The feedback works offline without sending writing to an AI provider.
+- Unit tests cover all 117 authored written tasks; desktop/mobile Playwright
+  covers all four learning paths, safe progress, and accessibility at 320px.
+- An intermittent service-worker test setup timing issue was isolated; a
+  bounded readiness check avoids masking genuine failures. Both isolated
+  worker tests and the complete browser suite passed after the adjustment.
+- A newly disclosed low-severity transitive deepmerge advisory was addressed
+  via a 4.1.1 npm override. The current dependency audit reports zero known
+  vulnerabilities, and offline functionality was retested with this tree.
+
+Final verification: Node 24 toolchain, 87 unit/API tests, 66 browser tests
+(all passing), typecheck, lint, curriculum validation, production build,
+release-asset scan and npm audit passed. The full browser suite was rerun as
+E2E_PORT=4292 PLAYWRIGHT_CHANNEL=chrome npm run test:e2e.
+
+Limitation: the under-18 public pilot has no tested, production-ready LLM
+grading endpoint. Offline response-specific cues do not replace teacher
+marking or semantic AI evaluation. Teacher calibration is still required
+for exam-grade predictions.

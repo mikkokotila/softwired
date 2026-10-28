@@ -170,13 +170,22 @@ test("production PWA has install assets and reads lessons after offline reload",
   page,
   context,
 }) => {
-  test.setTimeout(60_000);
+  // On a shared CI/desktop runner, Workbox precaching can be delayed by
+  // other Playwright contexts. Keep a bounded but generous installation
+  // window; the app itself remains usable online before the worker is ready.
+  test.setTimeout(120_000);
   await onboard(page);
-  await page.evaluate(async () => {
-    await navigator.serviceWorker.ready;
-  });
+  // Avoid an unbounded navigator.serviceWorker.ready promise: if a browser
+  // fails to install the worker, make the failure observable and actionable.
   await expect
-    .poll(() => page.evaluate(() => !!navigator.serviceWorker.controller))
+    .poll(
+      () =>
+        page.evaluate(async () => {
+          const registration = await navigator.serviceWorker.getRegistration();
+          return !!registration?.active && !!navigator.serviceWorker.controller;
+        }),
+      { timeout: 90_000, intervals: [250, 500, 1000] },
+    )
     .toBe(true);
   const manifest = await page.request.get("/manifest.webmanifest");
   expect(manifest.ok()).toBe(true);

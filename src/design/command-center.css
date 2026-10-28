@@ -2750,3 +2750,113 @@ dialog {
 .assessment > .button {
   transition: transform var(--motion-fast) var(--ease-out);
 }
+
+/* OPEN WRITTEN ANSWERS — immediate, non-grading formative feedback.
+   Shared across lesson recall, application, revisions and exam results. */
+.written-feedback {
+  margin: var(--space-5) 0;
+  padding: var(--space-5);
+  border: var(--border-thin) solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  color: var(--text-main);
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.self-rubric .written-feedback {
+  background: var(--surface-card);
+}
+.written-feedback-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.written-feedback-heading h3 {
+  margin-top: var(--space-1);
+  font-size: 1.12rem;
+  line-height: 1.25;
+}
+.written-feedback-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--cyan-soft);
+  color: var(--cyan);
+}
+.written-feedback-intro {
+  line-height: 1.65;
+  color: var(--text-main);
+}
+.written-feedback-match {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: var(--border-thin) solid var(--border-subtle);
+}
+.written-feedback-match strong {
+  font-size: .9rem;
+  color: var(--text-main);
+}
+.written-feedback-match p,
+.written-feedback-disclaimer {
+  font-size: .83rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.written-feedback-tags {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.written-feedback-tags span {
+  font-size: .82rem;
+  background: var(--cyan-soft);
+  color: var(--cyan);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-3);
+}
+.written-feedback-next {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  border-left: var(--border-focus) solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+}
+.written-feedback-next svg {
+  color: var(--accent-ink);
+  margin-top: var(--space-1);
+}
+.written-feedback-next p {
+  color: var(--text-main);
+  line-height: 1.6;
+}
+.written-feedback-next strong {
+  color: var(--text-main);
+}
+.self-review-result {
+  margin: var(--space-3) 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-highlight);
+  border: var(--border-thin) solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  line-height: 1.6;
+}
+.self-review-result p {
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+}
+@media (max-width: 480px) {
+  .written-feedback {
+    padding: var(--space-4);
+  }
+  .written-feedback-heading h3 {
+    font-size: 1.03rem;
+  }
+}

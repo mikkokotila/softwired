@@ -261,7 +261,7 @@ function Review({ lesson, onDone }: { lesson: Lesson; onDone: () => void }) {
                 Et tiennyt vielä vastausta. Tutki mallia rauhassa. Tätä
                 kertausta ei merkitä osatuksi, mutta voit jatkaa eteenpäin.
               </Notice>
-              <SelfRubric task={lesson.recall} />
+              <SelfRubric task={lesson.recall} answer={answer} />
               {score === null && (
                 <button className="button" onClick={() => finish(0)}>
                   Merkitse harjoitelluksi ja jatka
@@ -269,7 +269,7 @@ function Review({ lesson, onDone }: { lesson: Lesson; onDone: () => void }) {
               )}
             </>
           ) : (
-            <SelfRubric task={lesson.recall} onScore={finish} />
+            <SelfRubric task={lesson.recall} answer={answer} onScore={finish} />
           )}
           {incorrectThisReview && !didNotKnow && (
             <Notice>
