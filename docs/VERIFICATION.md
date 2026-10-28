@@ -153,3 +153,39 @@ Limitation: the under-18 public pilot has no tested, production-ready LLM
 grading endpoint. Offline response-specific cues do not replace teacher
 marking or semantic AI evaluation. Teacher calibration is still required
 for exam-grade predictions.
+
+## 28 October 2026 — exact Muse Spark 1.3 Contributor lock
+
+The previously active OpenAI model configuration was removed from the
+student runtime. Softwired now has one immutable model designation,
+muse-spark-1.3-contributor, defined in src/config/muse-model.ts.
+The Express/student entrypoint always disables provider creation and
+rejects model substitutions; the public Cloudflare status displays that
+exact model with configured=false. The public tutor returns HTTP 403
+under Meta's under-18 terms. Previous provider consents are revoked
+without resetting students' saved lesson/exam progress.
+
+A separate private, localhost-only adult developer harness implements a
+REAL model connection via https://api.meta.ai/v1, verified with fictional
+Finnish coursework only. A live API grading response returned model
+muse-spark-1.3-contributor, score 2/4, strengths, improvements and a
+follow-up question. The adult browser console independently received
+another valid structured live grading response for the exact model.
+No fallback, dynamic model picker or substituted model is accepted by
+that adapter. No real student writing was sent.
+
+Unit/API tests: 89 passed. Typecheck, lint and dependency audit passed,
+with 0 reported vulnerabilities. Public production asset scan passed.
+The full browser suite had 65/66 passing; only the known intermittent
+mobile service-worker registration check timed out under concurrent
+test load. The exact offline test separately passed on both mobile and
+desktop. This is not claimed as a completely green full browser suite.
+
+The original requested _public, teen-facing_ Muse-powered tutor remains
+UNAVAILABLE because Meta Model API Terms of Service (9 October 2026)
+prohibit integrated products targeted at people under 18. The developer
+must obtain express Meta permission before any student-facing
+integration may be considered. This test harness is not authorization
+to send student answers to Contributor services.
+
+See docs/MUSE_MODEL_DECISION.md for rationale and private test usage.

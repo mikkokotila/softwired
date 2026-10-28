@@ -1,3 +1,9 @@
+> Current provider policy: the sole selected model is
+> muse-spark-1.3-contributor, but Meta Model API does not permit
+> Integrated Products targeted at under-18s. The public student API
+> is explicitly blocked. A local private adult reviewer tests the real
+> model. See MUSE_MODEL_DECISION.md.
+
 # Softwired · Cloudflare Pages public pilot
 
 Host: https://softwired.mikkokotila.com
@@ -27,9 +33,12 @@ Cloudflare deployment.
 
 ## Public course and AI
 
-The public pilot has no live AI. Pages Functions intentionally return configured=false for /api/status and HTTP 503 for /api/tutor and /api/unlock. This avoids accidentally exposing a paid API to the entire internet.
+The public pilot has no student-facing live AI. Pages Functions return
+configured=false with model=muse-spark-1.3-contributor for /api/status.
+The /api/tutor endpoint returns HTTP 403 due Meta's age terms;
+the unused /api/unlock endpoint returns 503. This avoids accidentally exposing a paid API to the entire internet.
 
-The old local Node/Express service is retained for development and future properly gated integrations. Merely adding OPENAI_API_KEY to Cloudflare Pages must NOT turn the pilot API on. A future AI release requires age-appropriate usage review, secrets configured outside Git, server-side authentication, a durable request/cost limiter, appropriate moderation and a live integration verification.
+The old local Node/Express service is retained for development and future properly gated integrations. Merely adding MUSE_API_KEY to Cloudflare Pages must NOT turn student AI on. A future AI release requires age-appropriate usage review, secrets configured outside Git, server-side authentication, a durable request/cost limiter, appropriate moderation and a live integration verification.
 
 Lessons, revision, mock exams and local progress work without any server-side credentials. Exam answers and course state are stored only in each browser's local storage. There is no cross-device synchronization. Avoid clearing site data without exporting a backup.
 
@@ -41,7 +50,7 @@ Only independently authored lesson explanations and questions are published. The
 
 Use npm run build:pages for static assets.
 Run npx wrangler pages dev ./dist --port 8799 to test the Pages Functions locally.
-Confirm /api/status returns JSON and configured=false, /api/tutor rejects POST with 503, the PWA manifest exists, and offline lesson pages load after a cached first visit.
+Confirm /api/status returns JSON and configured=false with the locked Muse model, /api/tutor rejects POST with 403, the PWA manifest exists, and offline lesson pages load after a cached first visit.
 
 The public site is configured with X-Robots-Tag: noindex during the pilot. The site is publicly reachable to anyone with its URL; this is not an access-control mechanism. For a private student test, use Cloudflare Access and provide an authenticated tester identity.
 

@@ -95,7 +95,13 @@ it("keeps prior learning but revokes consent when switching AI providers", () =>
     consent: true,
     consentProvider: "openai-u18-study-v1",
   });
-  expect(optedIn.consent).toBe(true);
+  expect(optedIn.consent).toBe(false);
+  const current = migrate({
+    ...freshState(),
+    consent: true,
+    consentProvider: "muse-contributor-adult-review-v1",
+  });
+  expect(current.consent).toBe(true);
 });
 
 it("preserves completed lessons, drafts and exams while revoking old Muse consent", () => {

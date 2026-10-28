@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Softwired / Muse Developer Review</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#f1f6fe;background:#0b111d;line-height:1.5;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 85% -10%,#293953 0,transparent 55%),#0b111d}
+header{border-bottom:1px solid #29354b;padding:18px max(18px,calc((100% - 1200px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-size:23px;font-weight:850;letter-spacing:.08em}.logo span{color:#bafa72}
+.private{border:1px solid #ae9877;color:#f1d6a8;border-radius:6px;padding:6px 10px;font-size:12px}
+main{width:min(1200px,100%);margin:0 auto;padding:36px 18px 70px}
+h1{font-size:clamp(29px,4vw,49px);line-height:1.1;margin:8px 0 12px}
+.eyebrow{color:#bafa72;letter-spacing:.14em;font-weight:800;font-size:11px}
+.intro{max-width:800px;color:#bfd0e3;margin-bottom:30px}
+.columns{display:grid;grid-template-columns:minmax(300px,1fr) minmax(290px,1fr);gap:18px}
+.panel{border:1px solid #34455d;border-radius:17px;background:#172235;padding:24px;min-width:0}
+.panel h2{margin:0 0 16px;font-size:20px}
+label{display:block;font-weight:700;margin:18px 0 7px;font-size:13px}
+select,textarea{display:block;width:100%;background:#0e1728;border:1px solid #52617b;border-radius:10px;color:#f0f6fd;padding:12px;font:inherit;resize:vertical}
+textarea{min-height:185px}
+select:focus,textarea:focus,button:focus-visible,input:focus-visible{outline:3px solid #8ed9ec;outline-offset:3px}
+button{cursor:pointer;padding:13px 20px;font:inherit;font-weight:750;background:#bafa72;color:#0b161c;border:0;border-radius:9px}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:hover:not(:disabled){background:#d3ffa1}
+.muted{color:#b6c5d9;font-size:13px}
+.check{display:flex;align-items:flex-start;gap:10px;margin:12px 0;font-size:13px;font-weight:500}
+.check input{width:18px;height:18px;flex:none;margin:1px 0 0}
+.warning{background:#382d25;border-left:4px solid #ffca8d;padding:14px 17px;border-radius:9px;margin:18px 0;color:#f9e1bd}
+.result-empty{color:#aec0d4;font-size:14px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#e5f0ff;font-family:inherit;font-size:14px;line-height:1.65;margin:15px 0}
+ul{padding-left:19px}.meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:#ccdded}
+.meta span{padding:5px 10px;background:#24364b;border-radius:6px}
+.score{font-size:42px;font-weight:850;color:#bafa72;margin:15px 0}
+#error{color:#ffc7be;margin:12px 0}
+footer{color:#9bafc7;font-size:12px;margin-top:24px}
+@media(max-width:850px){.columns{grid-template-columns:1fr}.panel{padding:18px}}
+</style>
+</head>
+<body>
+<header><div class="logo">SOFTWIRED<span>.</span></div><div class="private">ADULT DEVELOPER EVALUATION · 18+</div></header>
+<main>
+<span class="eyebrow">REAL PROVIDER · NO FALLBACK</span>
+<h1>Muse Spark 1.3 Contributor</h1>
+<p class="intro">This local-only console sends fictional teaching examples to the actual Meta Model API. The model is hardcoded. It is not the student app and must not be provided to minors.</p>
+<div class="warning"><strong>Strict access restriction.</strong> Meta Model API terms prohibit products targeted at under-18 users. Contributor mode may use submitted text for training and must not receive personal, sensitive or confidential data. Use invented scenarios only.</div>
+<div class="columns">
+<section class="panel">
+<h2>Test a real tutoring response</h2>
+<form id="review">
+<label for="lesson">Topic</label><select id="lesson" name="lesson">__LESSONS__</select>
+<label for="task">Task</label>
+<select id="task"><option value="application">Application</option><option value="recall">Recall</option><option value="exam">Mock-exam rubric (matching first lesson only)</option></select>
+<label for="mode">Mode</label>
+<select id="mode"><option value="grade">Grade written answer</option><option value="explain">Explain</option><option value="hint">Give a hint</option><option value="dialogue">Continue dialogue</option></select>
+<label for="answer">Fictional Finnish answer or question</label>
+<textarea id="answer" maxlength="3000">Yksi huono päivä ei yksin kerro mielenterveyden tilasta. Mieliala vaihtelee. Jos pahaa oloa jatkuu pitkään, kannattaa hakea apua turvalliselta aikuiselta.</textarea>
+<label class="check"><input id="adult" type="checkbox" required>I confirm that I am at least 18.</label>
+<label class="check"><input id="synthetic" type="checkbox" required>This is entirely fictional and contains no real person’s details or confidential information.</label>
+<button id="submit" type="submit">Send to exact Muse model</button>
+<p id="error" role="alert"></p>
+<p class="muted">The API credential stays on the local server. No inputs are saved to disk or browser storage. The provider may retain and train on submitted text.</p>
+</form>
+</section>
+<section class="panel" aria-live="polite">
+<h2>Live model response</h2>
+<div id="output" class="result-empty">No request sent yet. The response will be displayed here only after a successful call to <strong>muse-spark-1.3-contributor</strong>.</div>
+</section>
+</div>
+<footer>This tool is a private adult developer test harness, not permission to use Meta Model API in a product targeted at minors. It is not deployed to Cloudflare Pages.</footer>
+</main>
+<script>
+const token="__CSRF__";
+const form=document.getElementById('review');
+const output=document.getElementById('output');
+const error=document.getElementById('error');
+const button=document.getElementById('submit');
+const history=[];
+form.addEventListener('submit',async e=>{
+  e.preventDefault();error.textContent='';
+  if(!form.reportValidity())return;
+  button.disabled=true;button.textContent='Real Muse request running…';
+  const message=document.getElementById('answer').value.trim();
+  const mode=document.getElementById('mode').value;
+  try {
+    const res=await fetch('/api/review',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Review-CSRF':token},
+      body:JSON.stringify({
+        lessonId:document.getElementById('lesson').value,
+        task:document.getElementById('task').value,
+        mode,message,
+        adultConfirmed:document.getElementById('adult').checked,
+        syntheticContentConfirmed:document.getElementById('synthetic').checked,
+        history:mode==='dialogue'?history.slice(-6):[],
+      })
+    });
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error||'Provider unavailable');
+    if(data.model!=='muse-spark-1.3-contributor')throw new Error('Model mismatch: refused');
+    output.replaceChildren();
+    const meta=document.createElement('div');meta.className='meta';
+    for(const value of [data.provider,data.model,'LIVE VERIFIED']){
+      const chip=document.createElement('span');chip.textContent=value;meta.append(chip);
+    } output.append(meta);
+    if(data.score!==null){
+      const score=document.createElement('div');score.className='score';score.textContent=data.score+' / 4';output.append(score);
+    }
+    const main=document.createElement('pre');main.textContent=data.reply;output.append(main);
+    for(const [title,rows] of [['Strengths',data.strengths],['Improvements',data.improvements]]){
+      if(!rows.length)continue;
+      const heading=document.createElement('h3');heading.textContent=title;output.append(heading);
+      const list=document.createElement('ul');
+      for(const row of rows){const li=document.createElement('li');li.textContent=row;list.append(li)}
+      output.append(list);
+    }
+    if(data.nextQuestion){const heading=document.createElement('h3');heading.textContent='Next question';output.append(heading);const p=document.createElement('p');p.textContent=data.nextQuestion;output.append(p);}
+    if(mode==='dialogue'){history.push({role:'user',content:message},{role:'assistant',content:data.reply});}
+  }catch(err){error.textContent=String(err?.message||'Request failed');}
+  finally{button.disabled=false;button.textContent='Send to exact Muse model';}
+});
+</script>
+</body>
+</html>

@@ -17,6 +17,7 @@ import { useOnline } from "../lib/hooks";
 import { AI_CONSENT_PROVIDER } from "../lib/storage";
 import { useStudy } from "../lib/store";
 import { Notice } from "./ui";
+import { MUSE_CONTRIBUTOR_MODEL } from "../config/muse-model";
 type Mode = "explain" | "hint" | "grade" | "dialogue";
 const modes: { id: Mode; label: string }[] = [
   { id: "explain", label: "Selitä" },
@@ -150,7 +151,7 @@ export function AiAssistant({
       : !status
         ? "Tarkistetaan yhteyttä…"
         : !status.configured
-          ? "AI odottaa avainta"
+          ? "Muse estetty alaikäisiltä"
           : status.accessRequired
             ? "AI odottaa käyttöavainta"
             : status.verified
@@ -165,7 +166,7 @@ export function AiAssistant({
         <div>
           <h2>Oivallus alkaa kysymyksestä.</h2>
           <span className="small muted">
-            {status?.model ?? "gpt-6-astra"} · {label}
+            {status?.model ?? MUSE_CONTRIBUTOR_MODEL} · {label}
           </span>
         </div>
         <button
@@ -185,9 +186,11 @@ export function AiAssistant({
       {statusError && <Notice kind="error">{statusError}</Notice>}
       {status && !status.configured && (
         <Notice>
-          AI odottaa avainta. Ylläpitäjä lisää <code>OPENAI_API_KEY</code>
-          -avaimen palvelimen .env-tiedostoon. Opiskelu ja omat arviot toimivat
-          sillä välin. <a href="#/settings">Yhteysasetukset →</a>
+          Muse Spark 1.3 Contributor on valittu ainoaksi AI-malliksi, mutta Meta
+          Model API -ehdot kieltävät alle 18-vuotiaille suunnatut sovellukset.
+          Tässä opiskelijaversiossa AI-pyyntöjä ei lähetetä. Opiskelu ja omat
+          mallivertailut toimivat ilman AI:ta.
+          <a href="#/settings"> Käyttörajoitukset →</a>
         </Notice>
       )}
       {status?.accessRequired && (
@@ -195,22 +198,19 @@ export function AiAssistant({
           Avaa AI:n käyttöoikeus <a href="#/settings">asetuksissa</a>.
         </Notice>
       )}
-      {!hasProviderConsent && (
+      {status?.configured && !hasProviderConsent && (
         <div className="consent-box">
           <ShieldCheck size={22} />
           <div>
             <strong>Sinä päätät, mitä lähetät.</strong>
             <p>
               AI-pyynnössä kysymyksesi, vastauksesi ja valitun oppitunnin
-              sisältö lähetetään OpenAI API -palveluun. Keskustelutilassa
-              lähetetään myös viimeiset viestit. API-syötteitä ei käytetä
-              mallien kouluttamiseen oletusarvoisesti, mutta niitä voi säilyä
-              väärinkäytön valvontaan liittyvissä lokeissa enintään 30 päivää,
-              ellei pidempi säilytys ole tarpeen lain tai turvallisuuden vuoksi.
-              Älä lähetä nimiä, omia tai muiden terveystietoja, osoitteita tai
-              yksityisiä perheasioita. Käytä kuvitteellisia tilanteita.
-              Keskustele AI:n käytöstä huoltajan kanssa. API on maksullinen;
-              suostumus ei vielä lähetä pyyntöä.
+              sisältö lähetetään Meta Model API:n
+              muse-spark-1.3-contributor-mallille. Contributor-sisältöä voidaan
+              käyttää mallien kouluttamiseen, eikä sinne saa lähettää
+              henkilötietoja tai arkaluonteista aineistoa. Meta vaatii 18 vuoden
+              iän eikä salli alaikäisille suunnattuja tuotteita. Tämän
+              opiskelijaversio ei käytä AI:ta.
             </p>
             <button
               className="button secondary small-button"

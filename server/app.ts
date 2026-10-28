@@ -7,16 +7,16 @@ import path from "node:path";
 import { z } from "zod";
 import {
   tutorRequestSchema,
-  createOpenAITutor,
   type TutorRequest,
   type TutorReply,
   tutorReplySchema,
   TutorSafetyError,
 } from "./tutor";
 import { lessonById } from "../src/content";
+import { MUSE_CONTRIBUTOR_MODEL } from "../src/config/muse-model";
 export interface AppConfig {
   apiKey?: string;
-  model: string;
+  model: typeof MUSE_CONTRIBUTOR_MODEL;
   appOrigin: string;
   production?: boolean;
   publicBind?: boolean;
@@ -38,6 +38,8 @@ function equal(a: string, b: string) {
   );
 }
 export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
+  if (config.model !== MUSE_CONTRIBUTOR_MODEL)
+    throw new Error("ONLY_MUSE_SPARK_1_3_CONTRIBUTOR_SUPPORTED");
   const app = express();
   app.disable("x-powered-by");
   const origin = new URL(config.appOrigin).origin;
@@ -113,20 +115,21 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
         : randomBytes(24).toString("hex");
     res.cookie("kipina_session", csrf, cookieOptions);
     res.json({
-      configured: !!config.apiKey,
+      configured: !!provider && !!config.apiKey,
       model: config.model,
-      provider: "OpenAI API",
-      contributorMode: false,
+      provider: "Meta Model API",
+      contributorMode: true,
       verified: verifiedOnce,
       accessRequired: !authorized(req),
       csrf,
-      message: !config.apiKey
-        ? "AI odottaa avainta"
-        : verifiedOnce
-          ? "AI-yhteys vahvistettu onnistuneella pyynnöllä"
-          : "Avain määritetty · yhteys varmistuu ensimmäisellä pyynnöllä",
+      message:
+        !provider || !config.apiKey
+          ? "Muse ei ole käytettävissä alaikäisten opiskelijasovelluksessa"
+          : verifiedOnce
+            ? "Mallin testiyhteys varmennettu"
+            : "Testiyhteys odottaa varmennusta",
       paidNotice:
-        "OpenAI API on maksullinen. API-syötteitä ei käytetä mallien kouluttamiseen oletusarvoisesti. Sisältöä voi säilyä väärinkäytön valvontalokeissa. Hinta riippuu tokeneista.",
+        "Muse Spark 1.3 Contributor voi käyttää syötteitä mallien kouluttamiseen ja kieltää henkilötiedot. Meta Model API ei salli alle 18-vuotiaille suunnattuja tuotteita.",
     });
   });
   const csrfCheck: express.RequestHandler = (req, res, next) => {
@@ -179,11 +182,9 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
       error: "Pyyntöjä on liikaa. Odota minuutti ja yritä uudelleen.",
     },
   });
-  const provider =
-    injectedProvider ??
-    (config.apiKey
-      ? createOpenAITutor(config.apiKey, config.model, config.editorialNote)
-      : undefined);
+  // Under-18 runtime never creates an upstream provider.
+  // Injected providers are exclusively for isolated unit tests.
+  const provider = injectedProvider;
   let day = new Date().toISOString().slice(0, 10);
   let calls = 0;
   let concurrent = 0;
@@ -205,7 +206,7 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
     if (!provider) {
       res.status(503).json({
         error:
-          "AI odottaa avainta. Lisää OPENAI_API_KEY palvelimen .env-tiedostoon ja käynnistä palvelin uudelleen.",
+          "Muse Spark 1.3 Contributor ei ole käytettävissä alaikäisten sovelluksessa Meta Model API -ehtojen vuoksi.",
       });
       return;
     }
@@ -285,16 +286,16 @@ export function createApp(config: AppConfig, injectedProvider?: TutorProvider) {
       else if (status === 401 || status === 403)
         res.status(502).json({
           error:
-            "OpenAI API ei hyväksynyt avainta tai mallin käyttöoikeutta. Palvelimen ylläpitäjän on tarkistettava asetukset.",
+            "Meta Model API ei hyväksynyt avainta tai mallin käyttöoikeutta. Palvelimen ylläpitäjän on tarkistettava asetukset.",
         });
       else if (status === 404)
         res.status(502).json({
-          error: `Malli ${config.model} ei ole käytettävissä tällä tilillä. Ylläpitäjä voi valita mallin OPENAI_MODEL-asetuksella. Mallia ei vaihdeta automaattisesti.`,
+          error: `Malli ${config.model} ei ole käytettävissä tällä tilillä. Käytössä on vain muse-spark-1.3-contributor, eikä mallia vaihdeta.`,
         });
       else if (status === 429)
         res.status(429).json({
           error:
-            "OpenAI API -tilin raja tai saldo esti pyynnön. Tarkista laskutus ja rajat.",
+            "Meta Model API -tilin raja tai saldo esti pyynnön. Tarkista laskutus ja rajat.",
         });
       else
         res.status(502).json({

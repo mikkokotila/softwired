@@ -1,4 +1,3 @@
-import OpenAI from "openai";
 import { z } from "zod";
 import { lessonById, medicalNote } from "../src/content";
 import { examItems } from "../src/content/exams";
@@ -53,7 +52,7 @@ export class TutorSafetyError extends Error {
 
 export const responseFormat = {
   type: "json_schema" as const,
-  name: "kipina_tutor",
+  name: "softwired_muse_reviewer",
   strict: true,
   schema: {
     type: "object",
@@ -104,83 +103,4 @@ Palauta JSON annetun skeeman mukaan. score on kokonaisluku 0..4 vain grade-tilas
 TOIMITUKSELLINEN LISÄHUOMAUTUS: ${editorialNote.slice(0, 2000)}
 LUOTETTU OPETUSAINEISTO:
 ${JSON.stringify(trustedContext(request))}`;
-}
-export function createOpenAITutor(
-  apiKey: string,
-  model: string,
-  editorialNote = "",
-) {
-  // OpenAI Responses API; never embed credentials in the student-facing bundle.
-  const client = new OpenAI({
-    apiKey,
-    timeout: 45_000,
-    maxRetries: 0,
-  });
-  async function reviewSafety(text: string, signal: AbortSignal) {
-    // No high-risk teen content goes straight to a generative completion.
-    // If moderation fails, the tutoring request fails closed.
-    const check = await client.moderations.create(
-      { model: "omni-moderation-latest", input: text },
-      { signal },
-    );
-    const result = check.results[0];
-    if (!result) throw new Error("AI_MODERATION_UNAVAILABLE");
-    if (result.flagged) {
-      const higherRisk =
-        result.categories["self-harm"] ||
-        result.categories["self-harm/intent"] ||
-        result.categories["self-harm/instructions"];
-      throw new TutorSafetyError(Boolean(higherRisk));
-    }
-  }
-  return async (
-    request: TutorRequest,
-    signal: AbortSignal,
-  ): Promise<TutorReply> => {
-    await reviewSafety(
-      [
-        request.message,
-        ...request.history
-          .filter((item) => item.role === "user")
-          .map((item) => item.content),
-      ].join("\n"),
-      signal,
-    );
-    const response = await client.responses.create(
-      {
-        model,
-        store: false,
-        instructions: buildInstructions(request, editorialNote),
-        input: [
-          {
-            role: "user",
-            content: JSON.stringify({
-              untrustedStudentText: request.message,
-              untrustedHistory: request.history,
-            }),
-          },
-        ],
-        text: { format: responseFormat },
-        max_output_tokens: 3000,
-      },
-      { signal },
-    );
-    if (response.status !== "completed" || !response.output_text)
-      throw new Error("AI_INCOMPLETE");
-    const reply = tutorReplySchema.parse(JSON.parse(response.output_text));
-    if (request.mode === "grade" && reply.score === null)
-      throw new Error("AI_INVALID_SCORE");
-    if (request.mode !== "grade" && reply.score !== null)
-      throw new Error("AI_UNEXPECTED_SCORE");
-    await reviewSafety(
-      [
-        reply.reply,
-        reply.nextQuestion,
-        ...reply.strengths,
-        ...reply.improvements,
-      ].join("\n"),
-      signal,
-    );
-    return reply;
-  };
 }

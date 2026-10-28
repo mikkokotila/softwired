@@ -46,6 +46,9 @@ Playwright desktop/mobile tests exercise the complete lesson recall and
 application feedback, student checkbox updates, revision, all written exam
 results, saved progress across reloads, 320px layout and WCAG A/AA rules.
 
-A future stronger feedback layer can use server-side rubric-grounded model
-grading only after age safety, access control, provider budget/rate limits and
-teacher-calibrated grading quality are implemented and verified.
+A separate adult-only review harness has verified real
+muse-spark-1.3-contributor model grading using fictional samples. The current
+Meta Model API terms prohibit its use by the 14-year-old learners this public
+app is designed for. This offline feature is explicitly _not_ that model;
+teacher-calibrated real-time grading for minors remains unavailable.
+See MUSE_MODEL_DECISION.md.

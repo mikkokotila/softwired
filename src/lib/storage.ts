@@ -2,7 +2,8 @@ import { z } from "zod";
 import { lessons } from "../content";
 import type { Objective } from "./learning";
 // Migrating from the former provider must preserve progress but revoke consent.
-export const AI_CONSENT_PROVIDER = "openai-u18-study-v1" as const;
+export const AI_CONSENT_PROVIDER = "muse-contributor-adult-review-v1" as const;
+export const PREVIOUS_AI_CONSENT_PROVIDER = "openai-u18-study-v1" as const;
 export const LEGACY_AI_CONSENT_PROVIDER =
   "meta-muse-spark-contributor-v1" as const;
 const objectiveSchema = z.object({
@@ -75,6 +76,7 @@ export const stateSchema = z
       .union([
         z.literal(AI_CONSENT_PROVIDER),
         z.literal(LEGACY_AI_CONSENT_PROVIDER),
+        z.literal(PREVIOUS_AI_CONSENT_PROVIDER),
       ])
       .optional(),
     goalMinutes: z.literal(20),

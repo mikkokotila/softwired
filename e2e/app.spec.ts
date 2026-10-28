@@ -104,7 +104,7 @@ test("complete lesson enforces attempts, saves stages, and does not fabricate ma
   expect(data.focusPlan.items).toHaveLength(4);
   expect(data.focusPlan.items[0].done).toBe(true);
 });
-test("missing API key is explicit and never sends a paid tutor request", async ({
+test("Meta age restriction is explicit and no student tutor requests are sent", async ({
   page,
 }) => {
   let paid = 0;
@@ -114,11 +114,13 @@ test("missing API key is explicit and never sends a paid tutor request", async (
   await onboard(page);
   await mainRoute(page, "/tutor");
   await expect(
-    page.getByText("AI odottaa avainta.", { exact: false }).first(),
+    page
+      .getByText("Muse Spark 1.3 Contributor on valittu", { exact: false })
+      .first(),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Hyväksyn AI-pyyntöjen lähettämisen" })
-    .click();
+  await expect(
+    page.getByRole("button", { name: "Hyväksyn AI-pyyntöjen lähettämisen" }),
+  ).toHaveCount(0);
   await page
     .getByLabel("Minkä asian haluat ymmärtää?")
     .fill("Mitä on mielenterveys?");
@@ -248,7 +250,7 @@ test("backup import validates before replacing local state", async ({
   );
   await expect(
     page.getByRole("checkbox", {
-      name: "Sallin omien AI-pyyntöjeni lähettämisen OpenAI API -palveluun.",
+      name: /Muse Spark 1.3 Contributor/,
       exact: false,
     }),
   ).not.toBeChecked();

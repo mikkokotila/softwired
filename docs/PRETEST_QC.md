@@ -1,3 +1,9 @@
+> Historical pre-test record. Current provider decision, as of
+> 28 October 2026: Muse Spark 1.3 Contributor is the only selected model,
+> privately verified with real adult fictional-sample calls, but forbidden
+> for a 14-year-old integrated product by Meta Model API terms. The old
+> OpenAI suggestion is withdrawn. See MUSE_MODEL_DECISION.md.
+
 # Softwired — pre-test release quality review
 
 Date: 25 October 2026. Location: ~/dev/softwired. Audience: a 14-year-old Finnish health education student.

@@ -50,7 +50,7 @@ test("existing Muse-era learner retains completed work and has provider consent 
   await page.goto("/#/settings");
   await expect(
     page.getByRole("checkbox", {
-      name: "Sallin omien AI-pyyntöjeni lähettämisen OpenAI API -palveluun.",
+      name: /Muse Spark 1.3 Contributor/,
     }),
   ).not.toBeChecked();
 });
@@ -91,9 +91,9 @@ test("AI moderation refusal is safely shown without scoring or trapping the stud
       contentType: "application/json",
       body: JSON.stringify({
         configured: true,
-        model: "gpt-6-astra",
-        provider: "OpenAI API",
-        contributorMode: false,
+        model: "muse-spark-1.3-contributor",
+        provider: "Meta Model API",
+        contributorMode: true,
         verified: false,
         accessRequired: false,
         csrf: "test-local-csrf",

@@ -1,3 +1,8 @@
+import {
+  MUSE_CONTRIBUTOR_MODEL,
+  MUSE_PROVIDER_NAME,
+} from "../../src/config/muse-model";
+
 /**
  * Cloudflare Pages public pilot status.
  *
@@ -16,15 +21,15 @@ export const onRequestGet = async () =>
   new Response(
     JSON.stringify({
       configured: false,
-      model: "gpt-6-astra",
-      provider: "OpenAI API",
-      contributorMode: false,
+      model: MUSE_CONTRIBUTOR_MODEL,
+      provider: MUSE_PROVIDER_NAME,
+      contributorMode: true,
       verified: false,
       accessRequired: false,
       csrf: "",
-      message: "AI odottaa avainta",
+      message: "Muse ei ole käytettävissä alaikäisten opiskelijasovelluksessa",
       paidNotice:
-        "AI on julkisessa kokeiluversiossa pois käytöstä. Oppitunnit, kertaukset ja harjoituskokeet toimivat ilman AI:ta.",
+        "Muse Spark 1.3 Contributor on ainoa valittu AI-malli, mutta Meta Model API kieltää alle 18-vuotiaille tarkoitetut integroidut tuotteet. Julkisen opiskelijasovelluksen AI on siksi estetty. Älä lähetä henkilötietoja Contributor-palveluun.",
     }),
     { status: 200, headers },
   );

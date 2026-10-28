@@ -213,9 +213,10 @@ export function Settings({
             </strong>
           </div>
           <p className="small">
-            Malli: <strong>{status?.model ?? "gpt-6-astra"}</strong>. Avaimen
-            määrittäminen ei vielä varmista mallin käyttöoikeutta. Yhteys
-            varmistuu vasta onnistuneella pyynnöllä. Mallia ei vaihdeta
+            Malli:{" "}
+            <strong>{status?.model ?? "muse-spark-1.3-contributor"}</strong>.
+            Avaimen määrittäminen ei vielä varmista mallin käyttöoikeutta.
+            Yhteys varmistuu vasta onnistuneella pyynnöllä. Mallia ei vaihdeta
             automaattisesti.
           </p>
           {apiError && <Notice kind="error">{apiError}</Notice>}
@@ -224,25 +225,23 @@ export function Settings({
             Päivitä tila
           </button>
           <p className="small">
-            OpenAI API on maksullinen. Hinta riippuu mallista ja tokenimäärästä.
-            Kiinteää hinta-arviota ei näytetä, koska ajantasaista tilikohtaista
-            hintaa ei ole vahvistettu.
+            Muse Spark 1.3 Contributor on ainoa valittu AI-malli. Se on
+            maksullinen palvelu, mutta Meta Model API:n käyttöehdot rajoittavat
+            käytön vähintään 18-vuotiaille ja kieltävät alaikäisille suunnatut
+            integroidut tuotteet.
           </p>
           <p className="small">
-            Kysymys, vastaus, oppitunnin teksti ja keskustelutilan viimeiset
-            viestit lähetetään OpenAI API -palveluun vain pyynnöstäsi. API
-            käyttää asetusta <code>store: false</code>. Tämä ei ole lupaus
-            kaikesta palveluntarjoajan lokituksesta tai säilytysajoista.
-            API-syötteitä ja vastauksia ei käytetä mallien kouluttamiseen
-            oletusarvoisesti, mutta väärinkäytön valvontalokeja voidaan
-            säilyttää oletusarvoisesti enintään 30 päivää, ellei pidempi
-            säilytys ole tarpeen lain tai turvallisuuden vuoksi. Älä lähetä omia
-            tai muiden yksityisiä henkilötietoja. Alaikäisen on hyvä keskustella
-            käytöstä huoltajan kanssa.
+            Contributor-mallille lähetettyjä syötteitä ja vastauksia voidaan
+            käyttää Metan mallien kehittämiseen ja kouluttamiseen. Palveluun ei
+            saa lähettää henkilötietoja. Softwiredin alaikäisten oppilassovellus
+            ei lähetä yhtään AI-pyyntöä. Aikuisille kehittäjille on erillinen
+            yksityinen arviointiympäristö, jonka avulla aito malli voidaan
+            todentaa.
           </p>
           <label className="toggle-row">
             <input
               type="checkbox"
+              disabled={!status?.configured}
               checked={
                 state.consent && state.consentProvider === AI_CONSENT_PROVIDER
               }
@@ -257,7 +256,8 @@ export function Settings({
               }
             />
             <span>
-              Sallin omien AI-pyyntöjeni lähettämisen OpenAI API -palveluun.
+              Muse Spark 1.3 Contributor (vain 18+; opiskelijaversiossa
+              estetty).
               <small>
                 Älä lähetä omia tai toisten arkaluonteisia tietoja. Suostumuksen
                 muuttaminen ei lähetä API-pyyntöä.
@@ -301,12 +301,12 @@ export function Settings({
           <details className="setup-details">
             <summary>Ylläpitäjän käyttöönotto</summary>
             <p>
-              Lisää OpenAI API -avain vain palvelimen .env-tiedostoon:{" "}
-              <code>OPENAI_API_KEY</code>. Oletusmalli on{" "}
-              <code>gpt-6-astra</code>; mallin voi määrittää{" "}
-              <code>OPENAI_MODEL</code>-asetuksella. Käynnistä palvelin
-              uudelleen. Avainta ei koskaan kirjoiteta selaimeen tai
-              VITE_-muuttujaan.
+              Malli on kovakoodattu muotoon{" "}
+              <code>muse-spark-1.3-contributor</code>. Aikuisten yksityinen
+              kehittäjätesti käynnistyy Macissa komennolla{" "}
+              <code>npm run muse:adult-review</code>. Avainta ei kirjoiteta
+              selaimeen. Alaikäisille tämä API ei ole sallittu, joten
+              opiskelijaversiossa ei ole vastaavaa käyttöönottoa.
             </p>
           </details>
         </section>
